@@ -78,7 +78,14 @@ header {
 #board::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.18); border-radius: 3px; }
 
 /* ── COLUMN ── */
-.col { flex-shrink: 0; width: var(--col-w); display: flex; flex-direction: column; gap: 8px; }
+.col { flex-shrink: 0; width: var(--col-w); display: flex; flex-direction: column; gap: 8px; transition: width 0.2s; }
+.col-collapsed { width: 60px; }
+.col-collapsed .col-cards-wrap { display: none; }
+.col-collapsed .col-title { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 13px; padding: 8px 0; }
+.col-collapsed .col-header { flex-direction: column; align-items: center; padding: 12px 4px; cursor: pointer; min-height: 120px; justify-content: flex-start; gap: 8px; }
+.col-toggle { font-size: 11px; color: var(--text3); cursor: pointer; }
+.col-header { cursor: pointer; }
+.col-header:hover .col-title { color: var(--orange); }
 .col-header { display: flex; align-items: center; justify-content: space-between; padding: 4px 2px 10px; border-bottom: 2px solid var(--border2); margin-bottom: 2px; }
 .col-title { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
 .col-title-tilbud { border-color: #cbd5e1; }
@@ -226,18 +233,18 @@ header {
 .tl-empty { padding: 20px 18px; text-align: center; color: var(--text3); font-size: 15px; }
 
 /* gantt */
-.gantt-row { display: flex; align-items: center; padding: 0 18px; min-height: 40px; border-bottom: 1px solid var(--border); }
+.gantt-row { display: flex; align-items: center; padding: 0 18px; min-height: 48px; border-bottom: 1px solid var(--border); }
 .gantt-row:last-child { border-bottom: none; }
 .gantt-label { width: 180px; flex-shrink: 0; padding-right: 14px; font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .gantt-label-sub { font-size: 12px; color: var(--text3); font-weight: 400; }
-.gantt-track { flex: 1; position: relative; height: 20px; min-width: 700px; }
-.gantt-bar { position: absolute; height: 16px; top: 2px; border-radius: 4px; display: flex; align-items: center; padding: 0 6px; font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; }
-.gantt-today { position: absolute; top: 0; bottom: 0; width: 1.5px; background: var(--red); opacity: 0.5; }
+.gantt-track { flex: 1; position: relative; height: 26px; min-width: 700px; }
+.gantt-bar { position: absolute; height: 22px; top: 2px; border-radius: 4px; display: flex; align-items: center; padding: 0 6px; font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; }
+.gantt-today { position: absolute; top: 0; bottom: 0; width: 3px; background: var(--red); opacity: 0.9; box-shadow: 0 0 6px rgba(192,57,43,0.5); }
 .gantt-day-header { display: flex; padding: 7px 18px 6px; border-bottom: 1px solid var(--border); background: var(--bg); }
 .gantt-day-spacer { width: 180px; flex-shrink: 0; }
 .gantt-days { flex: 1; display: flex; min-width: 700px; }
 .gantt-day { flex: 1; font-size: 10px; color: var(--text3); text-align: center; font-weight: 500; }
-.gantt-day.today { color: var(--red); font-weight: 700; }
+.gantt-day.today { color: var(--red); font-weight: 700; background: rgba(192,57,43,0.08); border-radius: 3px; }
 
 /* overblik */
 #view-overblik { flex: 1; overflow: hidden; display: none; flex-direction: column; }
@@ -712,18 +719,26 @@ function renderBoard() {
   PHASES.forEach((phase,pi) => {
     const cards = active.filter(p=>p.phase===phase);
     const colClass = ['tilbud','opgave','aflevering','fakturering'][pi];
+    const colId = 'col_' + phase.replace(/[^a-z0-9]/gi,'_');
+    const isCollapsed = localStorage.getItem('col_collapsed_'+phase) === 'true';
     const col = document.createElement('div');
-    col.className = 'col';
+    col.className = 'col' + (isCollapsed ? ' col-collapsed' : '');
+    col.id = colId;
     col.innerHTML = `
-      <div class="col-header col-title-${colClass}">
+      <div class="col-header col-title-${colClass}" onclick="toggleCol('${phase}')">
         <div class="col-title">${phase}</div>
-        <div class="col-count">${cards.length}</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="col-count">${cards.length}</div>
+          <div class="col-toggle">${isCollapsed ? '▶' : '▼'}</div>
+        </div>
       </div>
-      <div class="col-cards" data-phase="${phase}"
-           ondragover="dragOver(event)" ondrop="drop(event)" ondragleave="dragLeave(event)">
-        ${cards.map(p=>cardHTML(p)).join('')}
+      <div class="col-cards-wrap">
+        <div class="col-cards" data-phase="${phase}"
+             ondragover="dragOver(event)" ondrop="drop(event)" ondragleave="dragLeave(event)">
+          ${cards.map(p=>cardHTML(p)).join('')}
+        </div>
+        <button class="col-add" onclick="newProjectInPhase('${phase}')">+ Tilføj</button>
       </div>
-      <button class="col-add" onclick="newProjectInPhase('${phase}')">+ Tilføj</button>
     `;
     board.appendChild(col);
   });
@@ -771,10 +786,11 @@ function cardHTML(p) {
     </div>`:''}
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:7px;border-top:1px solid var(--border)">
       <div style="display:flex;align-items:center;gap:5px">
-        <div style="font-size:9px;color:var(--text3);background:var(--bg2);border-radius:3px;padding:2px 5px;font-family:var(--mono)">${pct}% afklaret</div>
-        ${p.weather?`<div style="font-size:9px;color:var(--blue)">☁</div>`:''}
+        <div style="font-size:10px;color:var(--text3);background:var(--bg2);border-radius:3px;padding:2px 5px;font-family:var(--mono)">${pct}% afklaret</div>
+        ${p.weather?`<div style="font-size:10px;color:var(--blue)">☁</div>`:''}
+        ${logged>0?`<div style="font-size:10px;color:var(--text2);background:var(--bg2);border-radius:3px;padding:2px 5px;font-family:var(--mono)">📅 ${logged.toFixed(1)}t</div>`:''}
       </div>
-      ${p.amount?`<div style="font-family:var(--mono);font-size:10px;color:var(--amber);font-weight:500">${parseInt(p.amount).toLocaleString('da-DK')} kr</div>`:''}
+      ${p.amount?`<div style="font-family:var(--mono);font-size:11px;color:var(--amber);font-weight:500">${parseInt(p.amount).toLocaleString('da-DK')} kr</div>`:''}
     </div>
   </div>`;
 }
@@ -1155,11 +1171,20 @@ function renderGantt(active){
     const p2=Math.max(0,Math.min(100,(e/span)*100));
     const w=Math.max(p2-p1,1.5);
     const logged=totalLogged(p);
+    // Hours bar — show logged hours as filled portion
+    const agreedH = calcAgreedHours(p);
+    const pctLogged = agreedH > 0 ? Math.min(logged/agreedH, 1) : 0;
+    const hoursBarWidth = w * pctLogged;
+    const hoursColor = pctLogged > 0.9 ? '#ef4444' : pctLogged > 0.75 ? '#f59e0b' : '#22c55e';
+
     return `<div class="gantt-row">
-      <div class="gantt-label">${p.taskId||'—'} ${p.client||''}<div class="gantt-label-sub">${p.phase}</div></div>
+      <div class="gantt-label">${p.taskId||'—'} ${p.client||''}<div class="gantt-label-sub">${p.phase} ${logged>0?'· '+logged.toFixed(1)+'t brugt':''} ${agreedH>0?'/ '+agreedH.toFixed(0)+'t aftalt':''}</div></div>
       <div class="gantt-track">
         ${todayIdx>=0?`<div class="gantt-today" style="left:${(todayIdx/span)*100}%"></div>`:''}
-        <div class="gantt-bar" style="left:${p1}%;width:${w}%;background:${p.color||'#cbd5e1'}40;border:1.5px solid ${p.color||'#cbd5e1'};color:${p.color||'#64748b'}">${logged>0?logged.toFixed(1)+'t':''}</div>
+        <div class="gantt-bar" style="left:${p1}%;width:${w}%;background:${p.color||'#cbd5e1'}30;border:1.5px solid ${p.color||'#cbd5e1'};color:${p.color||'#64748b'}">
+          <div style="position:absolute;left:0;top:0;bottom:0;width:${pctLogged*100}%;background:${hoursColor}60;border-radius:3px;"></div>
+          <span style="position:relative;z-index:1">${agreedH>0?Math.round((1-pctLogged)*agreedH*10)/10+'t tilbage':logged>0?logged.toFixed(1)+'t':''}</span>
+        </div>
       </div></div>`;
   }).join('');
   document.getElementById('tl-gantt').innerHTML=`<div class="tl-section-title">Gantt — Deadlines</div><div style="overflow-x:auto"><div class="gantt-day-header"><div class="gantt-day-spacer"></div><div class="gantt-days">${dayHtml}</div></div>${rows}</div>`;
@@ -1338,6 +1363,13 @@ function toast(msg,type){
 // ═══════════════════════════════
 // INIT
 // ═══════════════════════════════
+function toggleCol(phase){
+  const key = 'col_collapsed_'+phase;
+  const isCollapsed = localStorage.getItem(key) === 'true';
+  localStorage.setItem(key, (!isCollapsed).toString());
+  renderBoard();
+}
+
 async function init(){
   checkOAuthReturn();
   updateGoogleStatus();
