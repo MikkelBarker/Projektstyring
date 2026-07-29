@@ -297,6 +297,103 @@ header {
 .ob-na-owner.me { color: var(--orange); }
 .ob-na-owner.kunde { color: var(--blue); }
 
+
+/* Email links */
+.email-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.email-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--bg); border-radius: 7px; border: 1.5px solid var(--border); }
+.email-item-info { flex: 1; }
+.email-item-label { font-size: 12px; font-weight: 600; color: var(--text); }
+.email-item-addr { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+.email-item-del { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 14px; }
+.email-item-del:hover { color: var(--red); }
+.email-add-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; margin-bottom: 16px; }
+
+/* Tekniske oplysninger */
+.tech-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.tech-field { display: flex; flex-direction: column; gap: 4px; }
+.tech-field label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text3); }
+.tech-field input, .tech-field textarea { background: var(--bg); border: 1.5px solid var(--border2); border-radius: 6px; color: var(--text); font-family: var(--font); font-size: 13px; padding: 7px 9px; width: 100%; outline: none; }
+.tech-field input:focus, .tech-field textarea:focus { border-color: var(--orange); }
+.tech-field.full { grid-column: 1/-1; }
+
+/* Time log push to calendar */
+.time-entry-cal-btn { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 12px; padding: 0 3px; transition: color 0.15s; }
+.time-entry-cal-btn:hover { color: var(--blue); }
+.time-entry-cal-btn.pushed { color: var(--green); }
+
+/* Card email indicator */
+.card-email-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); display: inline-block; margin-left: 4px; }
+
+
+/* Sub-boards */
+.subboards { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.subboard {
+  border: 1.5px solid var(--border2);
+  border-radius: 9px;
+  overflow: hidden;
+  background: var(--bg);
+}
+.subboard-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+}
+.subboard-title {
+  flex: 1; font-size: 14px; font-weight: 700; color: var(--text);
+  border: none; background: transparent; outline: none; cursor: text;
+  font-family: var(--font);
+}
+.subboard-title:focus { background: var(--white); border-radius: 4px; padding: 2px 6px; }
+.subboard-deadline { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+.subboard-deadline input { border: none; background: transparent; font-family: var(--mono); font-size: 11px; color: var(--text3); outline: none; width: 110px; cursor: pointer; }
+.subboard-deadline input:focus { background: var(--white); border-radius: 4px; padding: 1px 4px; border: 1px solid var(--border2); }
+.subboard-toggle { font-size: 10px; color: var(--text3); transition: transform 0.15s; }
+.subboard-toggle.open { transform: rotate(180deg); }
+.subboard-drag-handle { color: var(--text3); cursor: grab; font-size: 14px; }
+.subboard-del { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 14px; padding: 0 2px; }
+.subboard-del:hover { color: var(--red); }
+
+.subboard-body { padding: 10px 14px; display: none; }
+.subboard-body.open { display: block; }
+
+.subboard-items { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; }
+.subboard-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 6px 8px; background: var(--white);
+  border-radius: 6px; border: 1px solid var(--border);
+}
+.subboard-item-check {
+  width: 16px; height: 16px; border: 2px solid var(--border2);
+  border-radius: 4px; flex-shrink: 0; margin-top: 2px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.15s; font-size: 10px;
+}
+.subboard-item-check.checked { background: var(--green); border-color: var(--green); color: #fff; }
+.subboard-item-text {
+  flex: 1; font-size: 13px; color: var(--text); border: none;
+  background: transparent; outline: none; font-family: var(--font);
+  resize: none; line-height: 1.4;
+}
+.subboard-item-text.checked-text { text-decoration: line-through; color: var(--text3); }
+.subboard-item-del { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 13px; flex-shrink: 0; }
+.subboard-item-del:hover { color: var(--red); }
+
+.subboard-add-row { display: flex; gap: 6px; }
+.subboard-add-row input { flex: 1; font-size: 13px; padding: 6px 9px; border: 1.5px solid var(--border2); border-radius: 6px; background: var(--white); color: var(--text); font-family: var(--font); outline: none; }
+.subboard-add-row input:focus { border-color: var(--orange); }
+
+.add-subboard-btn {
+  width: 100%; padding: 8px; background: transparent;
+  border: 1.5px dashed var(--border2); border-radius: 8px;
+  color: var(--text3); font-family: var(--font); font-size: 13px;
+  font-weight: 500; cursor: pointer; text-align: center;
+  transition: all 0.15s; margin-bottom: 16px;
+}
+.add-subboard-btn:hover { border-color: var(--orange); color: var(--orange); background: var(--orange-bg); }
+
 /* loading */
 #loading { position: fixed; inset: 0; background: var(--white); display: flex; align-items: center; justify-content: center; z-index: 999; flex-direction: column; gap: 12px; }
 .spinner { width: 28px; height: 28px; border: 2px solid var(--border2); border-top-color: var(--orange); border-radius: 50%; animation: spin 0.7s linear infinite; }
@@ -413,6 +510,55 @@ header {
     <div class="field full"><label>Noter</label><textarea id="m-notes" rows="3" oninput="dirtyModal()"></textarea></div>
   </div>
 
+  <!-- TEKNISKE OPLYSNINGER -->
+  <div class="sec-title">Tekniske oplysninger</div>
+  <div class="tech-fields">
+    <div class="tech-field">
+      <label>Koordinatsystem</label>
+      <input id="m-coord" placeholder="Fx: ETRS89 UTM32N, offset E0=560000" oninput="dirtyModal()">
+    </div>
+    <div class="tech-field">
+      <label>Offset</label>
+      <input id="m-offset" placeholder="Fx: E0=560000, N0=6243000" oninput="dirtyModal()">
+    </div>
+    <div class="tech-field">
+      <label>Beplantningshøjde</label>
+      <input id="m-vegetation" placeholder="Fx: Træer 8m, buske 2m" oninput="dirtyModal()">
+    </div>
+    <div class="tech-field">
+      <label>Leveringsformat</label>
+      <input id="m-delivery-format" placeholder="Fx: PDF A3, PNG 300dpi" oninput="dirtyModal()">
+    </div>
+    <div class="tech-field">
+      <label>Synspunktsafstand / kamera</label>
+      <input id="m-camera" placeholder="Fx: 50mm ækvivalent, 1.6m øjenhøjde" oninput="dirtyModal()">
+    </div>
+    <div class="tech-field">
+      <label>3D filformat</label>
+      <input id="m-3dformat" placeholder="Fx: .skp, .dwg, .ifc" oninput="dirtyModal()">
+    </div>
+    <div class="tech-field full">
+      <label>Andre tekniske aftaler</label>
+      <textarea id="m-tech-notes" rows="3" placeholder="Andre vigtige tekniske detaljer..." oninput="dirtyModal()"></textarea>
+    </div>
+  </div>
+
+  <!-- SUB-BOARDS -->
+  <div class="sec-title" style="display:flex;align-items:center;justify-content:space-between">
+    Sub-boards
+    <button class="btn btn-sm btn-primary" onclick="addSubboard()">+ Board</button>
+  </div>
+  <div class="subboards" id="subboards-container"></div>
+
+  <!-- EMAIL LINKS -->
+  <div class="sec-title">Vigtige emails</div>
+  <div class="email-list" id="email-list"></div>
+  <div class="email-add-row">
+    <div class="field"><label>Beskrivelse</label><input id="em-label" placeholder="Fx: Tilbud accept"></div>
+    <div class="field"><label>Email (Gmail link eller adresse)</label><input id="em-addr" placeholder="Fx: søgeord eller link"></div>
+    <div class="field"><label>&nbsp;</label><button class="btn btn-sm" onclick="addEmail()">+ Tilføj</button></div>
+  </div>
+
   <!-- Hours calc -->
   <div id="hours-calc" style="margin-bottom:16px;display:none">
     <div class="sec-title">Timeoverblik</div>
@@ -527,7 +673,7 @@ const COL = {
   billyQuoteId:16, billyInvoiceId:17, billyPaid:18, archived:19,
   extraHours:20, calDeadlineId:21
 };
-const NUM_COLS = 22;
+const NUM_COLS = 29;
 
 // ═══════════════════════════════
 // STATE
@@ -565,7 +711,8 @@ function calcAgreedHours(p) {
 function sheetHeaders() {
   return ['id','taskId','client','address','deadline','amount','hoursAgreed',
     'nextAction','nextOwner','weather','notes','phase','checklist','timeLog',
-    'color','coverData','billyQuoteId','billyInvoiceId','billyPaid','archived','extraHours','calDeadlineId'];
+    'color','coverData','billyQuoteId','billyInvoiceId','billyPaid','archived','extraHours','calDeadlineId',
+    'coord','offset','vegetation','deliveryFormat','camera','techNotes','emails','subboards'];
 }
 
 function projectToRow(p) {
@@ -592,6 +739,16 @@ function projectToRow(p) {
   row[COL.archived] = p.archived?'true':'false';
   row[COL.extraHours] = p.extraHours||'';
   row[COL.calDeadlineId] = p.calDeadlineId||'';
+  if(NUM_COLS > 22) {
+    row[COL.coord] = p.coord||'';
+    row[COL.offset] = p.offset||'';
+    row[COL.vegetation] = p.vegetation||'';
+    row[COL.deliveryFormat] = p.deliveryFormat||'';
+    row[COL.camera] = p.camera||'';
+    row[COL.techNotes] = p.techNotes||'';
+    row[COL.emails] = JSON.stringify(p.emails||[]);
+    row[COL.subboards] = JSON.stringify(p.subboards||[]);
+  }
   return row;
 }
 
@@ -622,6 +779,14 @@ function rowToProject(row) {
     archived: row[COL.archived]==='true',
     extraHours: row[COL.extraHours]||'',
     calDeadlineId: row[COL.calDeadlineId]||'',
+    coord: row[COL.coord]||'',
+    offset: row[COL.offset]||'',
+    vegetation: row[COL.vegetation]||'',
+    deliveryFormat: row[COL.deliveryFormat]||'',
+    camera: row[COL.camera]||'',
+    techNotes: row[COL.techNotes]||'',
+    emails: (() => { try { return JSON.parse(row[COL.emails]||'[]'); } catch { return []; } })(),
+    subboards: (() => { try { return JSON.parse(row[COL.subboards]||'[]'); } catch { return []; } })(),
   };
 }
 
@@ -660,7 +825,7 @@ async function sheetsAppend(values) {
 async function loadFromSheets() {
   if(!googleToken) { projects=[]; return; }
   try {
-    const d = await sheetsGet(`${SHEET_NAME}!A:V`);
+    const d = await sheetsGet(`${SHEET_NAME}!A:AD`);
     const rows = d.values || [];
     // skip header row
     const dataRows = rows.length>1 ? rows.slice(1) : [];
@@ -675,10 +840,10 @@ async function loadFromSheets() {
 async function ensureSheetHeaders() {
   if(!googleToken) return;
   try {
-    const d = await sheetsGet(`${SHEET_NAME}!A1:V1`);
+    const d = await sheetsGet(`${SHEET_NAME}!A1:AD1`);
     const rows = d.values||[];
     if(!rows.length || !rows[0].includes('id')) {
-      await sheetsUpdate(`${SHEET_NAME}!A1:V1`, [sheetHeaders()]);
+      await sheetsUpdate(`${SHEET_NAME}!A1:AD1`, [sheetHeaders()]);
     }
   } catch(e) { console.warn('Header check failed',e); }
 }
@@ -695,7 +860,7 @@ async function saveProject(p) {
       // new row — append
       await sheetsAppend([projectToRow(p)]);
     } else {
-      const range = `${SHEET_NAME}!A${rowIdx+1}:V${rowIdx+1}`;
+      const range = `${SHEET_NAME}!A${rowIdx+1}:AD${rowIdx+1}`;
       await sheetsUpdate(range, [projectToRow(p)]);
     }
   } catch(e) {
@@ -769,7 +934,7 @@ function cardHTML(p) {
     ${p.coverData?`<div class="card-cover" style="background-image:url('${p.coverData}')"></div>`:''}
     <div class="card-top">
       <div class="card-id-name">
-        <div class="card-id">${p.taskId||'—'}</div>
+        <div class="card-id">${p.taskId||'—'}${p.emails&&p.emails.length?'<span class="card-email-dot"></span>':''}</div>
         <div class="card-name">${p.client||'Ny opgave'}</div>
       </div>
       <div class="card-color-dot" style="background:${p.color||CARD_COLORS[0]}" onclick="event.stopPropagation();quickColorPick(event,'${p.id}')"></div>
@@ -787,6 +952,7 @@ function cardHTML(p) {
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:7px;border-top:1px solid var(--border)">
       <div style="display:flex;align-items:center;gap:5px">
         <div style="font-size:10px;color:var(--text3);background:var(--bg2);border-radius:3px;padding:2px 5px;font-family:var(--mono)">${pct}% afklaret</div>
+        ${p.subboards&&p.subboards.length?`<div style="font-size:10px;color:var(--text3);background:var(--bg2);border-radius:3px;padding:2px 5px;font-family:var(--mono)">📋 ${p.subboards.length}</div>`:''}
         ${p.weather?`<div style="font-size:10px;color:var(--blue)">☁</div>`:''}
         ${logged>0?`<div style="font-size:10px;color:var(--text2);background:var(--bg2);border-radius:3px;padding:2px 5px;font-family:var(--mono)">📅 ${logged.toFixed(1)}t</div>`:''}
       </div>
@@ -863,6 +1029,15 @@ function openCard(id) {
   document.getElementById('m-next-action').value=p.nextAction||'';
   document.getElementById('m-weather').value=p.weather||'';
   document.getElementById('m-notes').value=p.notes||'';
+  document.getElementById('m-coord').value=p.coord||'';
+  document.getElementById('m-offset').value=p.offset||'';
+  document.getElementById('m-vegetation').value=p.vegetation||'';
+  document.getElementById('m-delivery-format').value=p.deliveryFormat||'';
+  document.getElementById('m-camera').value=p.camera||'';
+  document.getElementById('m-3dformat').value=p['3dformat']||'';
+  document.getElementById('m-tech-notes').value=p.techNotes||'';
+  renderEmailList(p);
+  renderSubboards(p);
 
   const sel=document.getElementById('m-phase');
   sel.innerHTML=PHASES.map(ph=>`<option value="${ph}" ${ph===p.phase?'selected':''}>${ph}</option>`).join('');
@@ -958,6 +1133,8 @@ function renderTimeEntries(p){
       <div class="time-entry-date">${formatDate(e.date)}</div>
       <div class="time-entry-desc">${e.desc}${e.fromCal?' 📅':''}</div>
       <div class="time-entry-hours">${parseFloat(e.hours).toFixed(1)}t</div>
+      ${!e.fromCal&&!e.calId?`<button class="time-entry-cal-btn" title="Push til Google Kalender" onclick="pushTimeEntryToCalendar(${i})">📅</button>`:''}
+      ${e.calId?`<span class="time-entry-cal-btn pushed" title="I Google Kalender">✓📅</span>`:''}
       <button class="time-entry-del" onclick="deleteTimeEntry(${i})">✕</button>
     </div>`).join('') || '<div style="font-size:11px;color:var(--text3);padding:6px 0">Ingen timer logget endnu</div>';
 }
@@ -1363,6 +1540,195 @@ function toast(msg,type){
 // ═══════════════════════════════
 // INIT
 // ═══════════════════════════════
+// ── SUB-BOARD FUNCTIONS ──
+let sbDragIdx = null;
+
+function renderSubboards(p){
+  const container = document.getElementById('subboards-container');
+  if(!container) return;
+  const sbs = p.subboards||[];
+  if(!sbs.length){ container.innerHTML=''; return; }
+  
+  container.innerHTML = sbs.map((sb,si)=>`
+    <div class="subboard" data-sb-idx="${si}" draggable="true"
+         ondragstart="sbDragStart(${si})" ondragover="sbDragOver(event,${si})" ondrop="sbDrop(event,${si})">
+      <div class="subboard-header" onclick="toggleSubboard(${si})">
+        <span class="subboard-drag-handle" onclick="event.stopPropagation()">⠿</span>
+        <input class="subboard-title" value="${sb.title||'Nyt board'}"
+               onclick="event.stopPropagation()"
+               onchange="updateSbTitle(${si},this.value)"
+               placeholder="Overskrift...">
+        <div class="subboard-deadline" onclick="event.stopPropagation()">
+          <input type="date" value="${sb.deadline||''}" title="Deadline for dette sub-board"
+                 onchange="updateSbDeadline(${si},this.value)">
+        </div>
+        <span class="subboard-toggle ${sb.open?'open':''}">▼</span>
+        <button class="subboard-del" onclick="event.stopPropagation();deleteSubboard(${si})">✕</button>
+      </div>
+      <div class="subboard-body ${sb.open?'open':''}">
+        <div class="subboard-items" id="sb-items-${si}">
+          ${(sb.items||[]).map((item,ii)=>`
+            <div class="subboard-item">
+              <div class="subboard-item-check ${item.checked?'checked':''}" 
+                   onclick="toggleSbItem(${si},${ii})">
+                ${item.checked?'✓':''}
+              </div>
+              <textarea class="subboard-item-text ${item.checked?'checked-text':''}" 
+                        rows="1"
+                        onchange="updateSbItem(${si},${ii},this.value)"
+                        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
+                        >${item.text||''}</textarea>
+              <button class="subboard-item-del" onclick="deleteSbItem(${si},${ii})">✕</button>
+            </div>`).join('')}
+        </div>
+        <div class="subboard-add-row">
+          <input placeholder="+ Tilføj punkt..." 
+                 onkeydown="if(event.key==='Enter'){event.preventDefault();addSbItem(${si},this);}"
+                 id="sb-input-${si}">
+          <button class="btn btn-sm" onclick="addSbItem(${si},document.getElementById('sb-input-${si}'))">+</button>
+        </div>
+      </div>
+    </div>`).join('');
+  
+  // Auto-resize textareas
+  container.querySelectorAll('.subboard-item-text').forEach(ta=>{
+    ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';
+  });
+}
+
+function addSubboard(){
+  const p=projects.find(x=>x.id===currentId); if(!p) return;
+  if(!p.subboards) p.subboards=[];
+  p.subboards.push({title:'Nyt board',deadline:'',items:[],open:true});
+  renderSubboards(p); dirtyModal();
+}
+
+function toggleSubboard(si){
+  const p=projects.find(x=>x.id===currentId); if(!p) return;
+  p.subboards[si].open=!p.subboards[si].open;
+  renderSubboards(p); dirtyModal();
+}
+
+function updateSbTitle(si,val){
+  const p=projects.find(x=>x.id===currentId); if(!p) return;
+  p.subboards[si].title=val; dirtyModal();
+}
+
+function updateSbDeadline(si,val){
+  const p=projects.find(x=>x.id===currentId); if(!p) return;
+  p.subboards[si].deadline=val; dirtyModal();
+}
+
+function deleteSubboard(si){
+  const p=projects.find(x=>x.id===currentId); if(!p) return;
+  if(!confirm('Slet dette sub-board?')) return;
+  p.subboards.splice(si,1); renderSubboards(p); dirtyModal();
+}
+
+function addSbItem(si,inputEl){
+  const p=projects.find(x=>x.id===currentId); if(!p) return;
+  const text=inputEl.value.trim(); if(!text) return;
+  if(!p.subboards[si].items) p.subboards[si].items=[];
+  p.subboards[si].items.push({text,checked:false});
+  inputEl.value='';
+  renderSubboards(p); dirtyModal();
+  // Re-focus input
+  setTimeout(()=>{ const el=document.getElementById('sb-input-'+si); if(el) el.focus(); },50);
+}
+
+function toggleSbItem(si,ii){
+  const p=projects.find(x=>x.id===currentId); if(!p) return;
+  p.subboards[si].items[ii].checked=!p.subboards[si].items[ii].checked;
+  renderSubboards(p); dirtyModal();
+}
+
+function updateSbItem(si,ii,val){
+  const p=projects.find(x=>x.id===currentId); if(!p) return;
+  p.subboards[si].items[ii].text=val; dirtyModal();
+}
+
+function deleteSbItem(si,ii){
+  const p=projects.find(x=>x.id===currentId); if(!p) return;
+  p.subboards[si].items.splice(ii,1); renderSubboards(p); dirtyModal();
+}
+
+// Drag to reorder sub-boards
+function sbDragStart(si){ sbDragIdx=si; }
+function sbDragOver(e,si){ e.preventDefault(); }
+function sbDrop(e,si){
+  e.preventDefault();
+  const p=projects.find(x=>x.id===currentId); if(!p||sbDragIdx===null||sbDragIdx===si) return;
+  const moved=p.subboards.splice(sbDragIdx,1)[0];
+  p.subboards.splice(si,0,moved);
+  sbDragIdx=null;
+  renderSubboards(p); dirtyModal();
+}
+
+// ── EMAIL FUNCTIONS ──
+function renderEmailList(p){
+  const list = document.getElementById('email-list');
+  const emails = p.emails||[];
+  if(!emails.length){
+    list.innerHTML='<div style="font-size:12px;color:var(--text3);padding:6px 0">Ingen emails tilføjet endnu</div>';
+    return;
+  }
+  list.innerHTML = emails.map((e,i)=>`
+    <div class="email-item">
+      <div class="email-item-info">
+        <div class="email-item-label">${e.label}</div>
+        <div class="email-item-addr">${e.addr}</div>
+      </div>
+      <a href="${e.addr.startsWith('http')?e.addr:'https://mail.google.com/mail/u/0/#search/'+encodeURIComponent(e.addr)}" 
+         target="_blank" class="btn btn-sm btn-blue" style="text-decoration:none">Åbn ✉</a>
+      <button class="email-item-del" onclick="deleteEmail(${i})">✕</button>
+    </div>`).join('');
+}
+
+function addEmail(){
+  const p=projects.find(x=>x.id===currentId); if(!p) return;
+  const label=document.getElementById('em-label').value.trim();
+  const addr=document.getElementById('em-addr').value.trim();
+  if(!label||!addr){toast('Udfyld beskrivelse og email/søgeord','error');return;}
+  if(!p.emails) p.emails=[];
+  p.emails.push({label,addr});
+  document.getElementById('em-label').value='';
+  document.getElementById('em-addr').value='';
+  renderEmailList(p); dirtyModal();
+}
+
+function deleteEmail(i){
+  const p=projects.find(x=>x.id===currentId); if(!p) return;
+  p.emails.splice(i,1); renderEmailList(p); dirtyModal();
+}
+
+// ── PUSH TIME LOG ENTRY TO GOOGLE CALENDAR ──
+async function pushTimeEntryToCalendar(idx){
+  const p=projects.find(x=>x.id===currentId); if(!p) return;
+  const entry=p.timeLog[idx]; if(!entry||entry.calId) return;
+  if(!googleToken){toast('Forbind Google først','error');return;}
+  
+  try {
+    const startDate=new Date(entry.date+'T08:00:00');
+    const endDate=new Date(startDate.getTime()+(parseFloat(entry.hours)*3600000));
+    const event={
+      summary:`${p.taskId} ${entry.desc}`,
+      start:{dateTime:startDate.toISOString()},
+      end:{dateTime:endDate.toISOString()},
+      description:`Mikkel Barker ApS\nOpgave: ${p.client||''}\nTimer: ${entry.hours}t`,
+      colorId:'2'
+    };
+    const r=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events',
+      {method:'POST',headers:{Authorization:`Bearer ${googleToken}`,'Content-Type':'application/json'},
+       body:JSON.stringify(event)});
+    const d=await r.json();
+    if(d.id){
+      entry.calId=d.id;
+      renderTimeEntries(p); dirtyModal();
+      toast('Tilføjet til Google Kalender ✓','success');
+    }
+  } catch(e){toast('Fejl ved kalender-push','error');}
+}
+
 function toggleCol(phase){
   const key = 'col_collapsed_'+phase;
   const isCollapsed = localStorage.getItem(key) === 'true';
