@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mikkel Barker ApS — Projektstyring</title>
+<title>MB Projektstyring</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzFhMjMzMiIvPjx0ZXh0IHg9IjE2IiB5PSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSJib2xkIiBmb250LXNpemU9IjIyIiBmaWxsPSIjZTg1OTBjIj5NPC90ZXh0Pjwvc3ZnPg==">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjI0IiBmaWxsPSIjMWEyMzMyIi8+PHRleHQgeD0iOTYiIHk9IjEzMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSJib2xkIiBmb250LXNpemU9IjExMCIgZmlsbD0iI2U4NTkwYyI+TTwvdGV4dD48dGV4dCB4PSI5NiIgeT0iMTcwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiNmZmZmZmYiIGxldHRlci1zcGFjaW5nPSIzIj5CQVJLRVI8L3RleHQ+PC9zdmc+">
+<meta name="theme-color" content="#1a2332">
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjogIk1pa2tlbCBCYXJrZXIgQXBTIFx1MjAxNCBQcm9qZWt0c3R5cmluZyIsICJzaG9ydF9uYW1lIjogIk1CIFByb2pla3RlciIsICJzdGFydF91cmwiOiAiL1Byb2pla3RzdHlyaW5nLyIsICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLCAiYmFja2dyb3VuZF9jb2xvciI6ICIjZjBmNGY4IiwgInRoZW1lX2NvbG9yIjogIiMxYTIzMzIifQ==">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -200,7 +204,7 @@ header {
 .owner-opt.sel-kunde { border-color: var(--blue); background: var(--blue-bg); color: var(--blue); }
 
 /* settings */
-#settings-overlay { display: none; position: fixed; inset: 0; background: rgba(15,25,40,0.5); z-index: 200; backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 32px 16px; }
+#settings-overlay { display: none; position: fixed; inset: 0; background: rgba(15,25,40,0.6); z-index: 999; backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 32px 16px; }
 #settings-overlay.open { display: flex; }
 .settings-modal { background: var(--white); border-radius: 14px; width: 100%; max-width: 480px; padding: 32px 38px; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
 .settings-modal h3 { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
@@ -1537,14 +1541,26 @@ function updateGoogleStatus(){
 // ═══════════════════════════════
 function openSettings(){
   const s=getSettings();
-  document.getElementById('s-gclient').value=s.gclient;
-  document.getElementById('s-sheet-id').value=s.sheetId;
-  document.getElementById('s-billy-key').value=s.billyKey;
-  document.getElementById('s-billy-org').value=s.billyOrg;
-  document.getElementById('s-hourly').value=s.hourlyRate;
-  document.getElementById('billy-test-result').textContent='';
+  const gcEl=document.getElementById('s-gclient');
+  const shEl=document.getElementById('s-sheet-id');
+  const bkEl=document.getElementById('s-billy-key');
+  const boEl=document.getElementById('s-billy-org');
+  const hrEl=document.getElementById('s-hourly');
+  if(gcEl) gcEl.value=s.gclient;
+  if(shEl) shEl.value=s.sheetId;
+  if(bkEl) bkEl.value=s.billyKey;
+  if(boEl) boEl.value=s.billyOrg;
+  if(hrEl) hrEl.value=s.hourlyRate;
+  const btr=document.getElementById('billy-test-result');
+  if(btr) btr.textContent='';
   updateGoogleStatus();
-  document.getElementById('settings-overlay').classList.add('open');
+  const overlay=document.getElementById('settings-overlay');
+  if(overlay){
+    overlay.classList.add('open');
+    // Close card modal if open to prevent z-index conflict
+    const cardOverlay=document.getElementById('card-overlay');
+    if(cardOverlay) cardOverlay.classList.remove('open');
+  }
 }
 function closeSettings(){document.getElementById('settings-overlay').classList.remove('open');}
 function settingsOverlayClick(e){if(e.target===document.getElementById('settings-overlay'))closeSettings();}
