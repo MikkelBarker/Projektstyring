@@ -343,14 +343,16 @@ header {
 }
 .subboard-title {
   flex: 1; font-size: 15px; font-weight: 700; color: var(--text);
-  border: none; background: transparent; outline: none; cursor: text;
-  font-family: var(--font);
+  border: none; border-bottom: 2px solid transparent; background: transparent;
+  outline: none; cursor: text; font-family: var(--font); padding: 2px 4px;
+  transition: border-color 0.15s;
 }
-.subboard-title:focus { background: var(--white); border-radius: 4px; padding: 2px 6px; }
+.subboard-title:focus { border-bottom-color: var(--orange); background: rgba(255,255,255,0.7); border-radius: 4px 4px 0 0; }
+.subboard-title::placeholder { color: var(--text3); font-weight: 400; }
 .subboard-deadline { font-family: var(--mono); font-size: 11px; color: var(--text3); }
 .subboard-deadline input { border: none; background: transparent; font-family: var(--mono); font-size: 11px; color: var(--text3); outline: none; width: 110px; cursor: pointer; }
 .subboard-deadline input:focus { background: var(--white); border-radius: 4px; padding: 1px 4px; border: 1px solid var(--border2); }
-.subboard-toggle { font-size: 10px; color: var(--text3); transition: transform 0.15s; }
+.subboard-toggle { font-size: 12px; color: var(--text3); transition: transform 0.2s; display: inline-block; }
 .subboard-toggle.open { transform: rotate(180deg); }
 .subboard-drag-handle { color: var(--text3); cursor: grab; font-size: 14px; }
 .subboard-del { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 14px; padding: 0 2px; }
@@ -498,7 +500,7 @@ header {
   <div id="cover-area" style="margin-bottom:14px">
     <div id="cover-preview"></div>
     <div style="display:flex;gap:6px">
-      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('cover-input').click()">🖼 Coverbillede</button>
+      <button class="btn btn-ghost btn-sm" style="font-size:12px" onclick="document.getElementById('cover-input').click()">🖼 Coverbillede</button>
       <input type="file" id="cover-input" accept="image/*" style="display:none" onchange="handleCover(event)">
       <button class="btn btn-ghost btn-sm" id="cover-remove-btn" style="display:none" onclick="removeCover()">Fjern</button>
     </div>
@@ -528,7 +530,7 @@ header {
       <input id="m-next-action" placeholder="Beskriv næste skridt..." oninput="dirtyModal()">
     </div>
     <div class="field full"><label>Vejr-note / Fotovindue</label><input id="m-weather" oninput="dirtyModal()"></div>
-    <div class="field full"><label>Noter</label><textarea id="m-notes" rows="6" style="min-height:120px;resize:vertical" oninput="dirtyModal()"></textarea></div>
+    <div class="field full"><label>Noter</label><textarea id="m-notes" rows="10" style="min-height:180px;resize:vertical;width:100%" oninput="dirtyModal()"></textarea></div>
   </div>
 
   </div><!-- end sec-basic -->
@@ -578,13 +580,16 @@ header {
   <div class="subboards" id="subboards-container"></div>
 
   <!-- EMAIL LINKS -->
-  <div class="sec-title">Vigtige emails</div>
-  <div class="sec-collapsible-body collapsed" id="sec-emails">
+  <div class="sec-title-collapsible" onclick="toggleSecCollapse('sec-emails',this)" style="margin-top:12px">
+    Vigtige emails
+    <span class="sec-collapse-toggle open">▼</span>
+  </div>
+  <div class="sec-collapsible-body" id="sec-emails">
   <div class="email-list" id="email-list"></div>
-  <div class="email-add-row">
-    <div class="field"><label>Beskrivelse</label><input id="em-label" placeholder="Fx: Tilbud accept"></div>
-    <div class="field"><label>Email (Gmail link eller adresse)</label><input id="em-addr" placeholder="Fx: søgeord eller link"></div>
-    <div class="field"><label>&nbsp;</label><button class="btn btn-sm" onclick="addEmail()">+ Tilføj</button></div>
+  <div class="email-add-row" style="margin-top:8px">
+    <div class="field"><label>Beskrivelse</label><input id="em-label" placeholder="Fx: Tilbud accept" onkeydown="if(event.key==='Enter') addEmail()"></div>
+    <div class="field"><label>Gmail søgeord eller URL</label><input id="em-addr" placeholder="Fx: from:kunde@firma.dk tilbud" onkeydown="if(event.key==='Enter') addEmail()"></div>
+    <div class="field"><label>&nbsp;</label><button class="btn btn-sm btn-primary" onclick="addEmail()">+ Tilføj</button></div>
   </div>
 
   <!-- Hours calc -->
@@ -620,7 +625,7 @@ header {
   </div>
   <div class="sec-collapsible-body" id="sec-time">
   <div class="time-add-row" style="margin-bottom:10px">
-    <div class="field"><label>Dato</label><input type="date" id="te-date"></div>
+    <div class="field"><label>Dato</label><input type="date" id="te-date" style="font-size:12px;padding:6px 8px"></div>
     <div class="field"><label>Beskrivelse</label><input id="te-desc" placeholder="Fotografering"></div>
     <div class="field"><label>Timer</label><input type="number" id="te-hours" placeholder="2" step="0.5" min="0"></div>
     <div class="field"><label>&nbsp;</label><button class="btn btn-sm" onclick="addTimeEntry()">+ Log</button></div>
@@ -1601,20 +1606,20 @@ function renderSubboards(p){
   container.innerHTML = sbs.map((sb,si)=>`
     <div class="subboard" data-sb-idx="${si}" draggable="true"
          ondragstart="sbDragStart(${si})" ondragover="sbDragOver(event,${si})" ondrop="sbDrop(event,${si})">
-      <div class="subboard-header" onclick="toggleSubboard(${si})">
-        <span class="subboard-drag-handle" onclick="event.stopPropagation()">⠿</span>
+      <div class="subboard-header">
+        <span class="subboard-drag-handle">⠿</span>
         <input class="subboard-title" value="${sb.title||'Nyt board'}"
                onclick="event.stopPropagation()"
                onchange="updateSbTitle(${si},this.value)"
-               placeholder="Overskrift...">
+               placeholder="Skriv overskrift her...">
         <div class="subboard-deadline" onclick="event.stopPropagation()">
-          <input type="date" value="${sb.deadline||''}" title="Deadline for dette sub-board"
+          <input type="date" value="${sb.deadline||''}" title="Deadline"
                  onchange="updateSbDeadline(${si},this.value)">
         </div>
-        <span class="subboard-toggle ${sb.open?'open':''}">▼</span>
-        <button class="subboard-del" onclick="event.stopPropagation();deleteSubboard(${si})">✕</button>
+        <span class="subboard-toggle ${sb.open?'open':''}" onclick="toggleSubboard(${si})" style="cursor:pointer;padding:4px 6px">▼</span>
+        <button class="subboard-del" onclick="deleteSubboard(${si})">✕</button>
       </div>
-      <div class="subboard-body ${sb.open?'open':''}">
+      <div class="subboard-body ${sb.open!==false?'open':''}">
         <div class="subboard-items" id="sb-items-${si}">
           ${(sb.items||[]).map((item,ii)=>`
             <div class="subboard-item">
@@ -1648,8 +1653,13 @@ function renderSubboards(p){
 function addSubboard(){
   const p=projects.find(x=>x.id===currentId); if(!p) return;
   if(!p.subboards) p.subboards=[];
-  p.subboards.push({title:'Nyt board',deadline:'',items:[],open:true});
+  p.subboards.push({title:'',deadline:'',items:[],open:true});
   renderSubboards(p); dirtyModal();
+  // Focus on new board title
+  setTimeout(()=>{
+    const inputs = document.querySelectorAll('.subboard-title');
+    if(inputs.length) inputs[inputs.length-1].focus();
+  }, 50);
 }
 
 function toggleSubboard(si){
@@ -1721,16 +1731,19 @@ function renderEmailList(p){
     list.innerHTML='<div style="font-size:12px;color:var(--text3);padding:6px 0">Ingen emails tilføjet endnu</div>';
     return;
   }
-  list.innerHTML = emails.map((e,i)=>`
-    <div class="email-item">
+  list.innerHTML = emails.map((e,i)=>{
+    const href = e.addr.startsWith('http') 
+      ? e.addr 
+      : `https://mail.google.com/mail/u/0/#search/${encodeURIComponent(e.addr)}`;
+    return `<div class="email-item">
       <div class="email-item-info">
         <div class="email-item-label">${e.label}</div>
-        <div class="email-item-addr">${e.addr}</div>
+        <div class="email-item-addr" style="font-size:11px;color:var(--text3);margin-top:2px;word-break:break-all">${e.addr}</div>
       </div>
-      <a href="${e.addr.startsWith('http')?e.addr:'https://mail.google.com/mail/u/0/#search/'+encodeURIComponent(e.addr)}" 
-         target="_blank" class="btn btn-sm btn-blue" style="text-decoration:none">Åbn ✉</a>
+      <a href="${href}" target="_blank" class="btn btn-sm btn-blue" style="text-decoration:none;flex-shrink:0">✉ Åbn</a>
       <button class="email-item-del" onclick="deleteEmail(${i})">✕</button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function addEmail(){
