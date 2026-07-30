@@ -416,6 +416,61 @@ header {
 .sec-collapsible-body { overflow: hidden; transition: all 0.2s; }
 .sec-collapsible-body.collapsed { display: none; }
 
+
+/* Connect screen */
+#connect-screen {
+  display: none; position: fixed; inset: 0;
+  background: #1a2332;
+  z-index: 9999;
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 24px;
+}
+#connect-screen.show { display: flex; }
+.connect-logo {
+  font-family: var(--font); font-size: 28px; font-weight: 700;
+  color: #ffffff; letter-spacing: -0.02em;
+}
+
+.connect-box {
+  background: #ffffff; border-radius: 16px;
+  padding: 40px 48px; text-align: center;
+  max-width: 440px; width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+.connect-box h2 {
+  font-size: 20px; font-weight: 700; color: #1a2332;
+  margin-bottom: 8px;
+}
+.connect-box p {
+  font-size: 14px; color: #4a5568; margin-bottom: 28px; line-height: 1.5;
+}
+.connect-google-btn {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  width: 100%; padding: 14px 20px;
+  background: #1a2332; color: #ffffff;
+  border: none; border-radius: 10px;
+  font-family: var(--font); font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+  margin-bottom: 12px;
+}
+.connect-google-btn:hover { background: #2d3748; transform: translateY(-1px); }
+.connect-client-field {
+  margin-bottom: 16px; text-align: left;
+}
+.connect-client-field label {
+  display: block; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  color: #8a9ab0; margin-bottom: 5px;
+}
+.connect-client-field input {
+  width: 100%; padding: 10px 12px;
+  border: 1.5px solid #e2e8f0; border-radius: 8px;
+  font-family: var(--font); font-size: 13px; color: #1a2332;
+  outline: none; transition: border-color 0.15s;
+}
+.connect-client-field input:focus { border-color: #e8590c; }
+.connect-hint { font-size: 11px; color: #8a9ab0; margin-top: 8px; }
+
 /* loading */
 #loading { position: fixed; inset: 0; background: var(--white); display: flex; align-items: center; justify-content: center; z-index: 999; flex-direction: column; gap: 12px; }
 .spinner { width: 28px; height: 28px; border: 2px solid var(--border2); border-top-color: var(--orange); border-radius: 50%; animation: spin 0.7s linear infinite; }
@@ -435,6 +490,24 @@ header {
 </style>
 </head>
 <body>
+
+<div id="connect-screen">
+  <div class="connect-logo">Mikkel Barker ApS</div>
+  <div class="connect-box">
+    <h2>Forbind din Google konto</h2>
+    <p>For at gemme og hente dine projekter skal du forbinde din Google konto. Det tager kun ét klik.</p>
+    <div class="connect-client-field">
+      <label>Google OAuth Client ID</label>
+      <input id="cs-gclient" placeholder="xxxx.apps.googleusercontent.com" 
+             value="" oninput="localStorage.setItem('mb3_gclient',this.value)">
+    </div>
+    <button class="connect-google-btn" onclick="connectFromScreen()">
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.36-8.16 2.36-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Forbind med Google
+    </button>
+    <div class="connect-hint">Du logger ind med info@mikkelbarker.dk</div>
+  </div>
+</div>
 
 <div id="loading">
   <div class="spinner"></div>
@@ -1501,6 +1574,13 @@ async function pushDeadlineToCalendar(p){
 // ═══════════════════════════════
 // GOOGLE OAUTH
 // ═══════════════════════════════
+function connectFromScreen(){
+  const clientInput = document.getElementById('cs-gclient');
+  const clientId = clientInput ? clientInput.value.trim() : '';
+  if(clientId) localStorage.setItem('mb3_gclient', clientId);
+  googleAuth();
+}
+
 function googleAuth(){
   const clientId=document.getElementById('s-gclient').value.trim()||getSettings().gclient;
   if(!clientId){toast('Angiv Client ID','error');return;}
@@ -1557,9 +1637,10 @@ function openSettings(){
   const overlay=document.getElementById('settings-overlay');
   if(overlay){
     overlay.classList.add('open');
-    // Close card modal if open to prevent z-index conflict
     const cardOverlay=document.getElementById('card-overlay');
     if(cardOverlay) cardOverlay.classList.remove('open');
+  } else {
+    console.warn('Settings overlay not found');
   }
 }
 function closeSettings(){document.getElementById('settings-overlay').classList.remove('open');}
@@ -1826,10 +1907,21 @@ function toggleCol(phase){
 async function init(){
   checkOAuthReturn();
   updateGoogleStatus();
-  if(googleToken){
-    await ensureSheetHeaders();
-    await loadFromSheets();
+
+  // Pre-fill client ID on connect screen
+  const savedClient = localStorage.getItem('mb3_gclient')||'';
+  const csInput = document.getElementById('cs-gclient');
+  if(csInput) csInput.value = savedClient;
+
+  if(!googleToken){
+    // Show connect screen
+    document.getElementById('loading').style.display='none';
+    document.getElementById('connect-screen').classList.add('show');
+    return;
   }
+
+  await ensureSheetHeaders();
+  await loadFromSheets();
   renderBoard();
   document.getElementById('loading').style.display='none';
   // pre-fill sheet id
