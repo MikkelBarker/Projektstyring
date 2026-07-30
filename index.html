@@ -342,7 +342,7 @@ header {
   user-select: none;
 }
 .subboard-title {
-  flex: 1; font-size: 14px; font-weight: 700; color: var(--text);
+  flex: 1; font-size: 15px; font-weight: 700; color: var(--text);
   border: none; background: transparent; outline: none; cursor: text;
   font-family: var(--font);
 }
@@ -373,7 +373,7 @@ header {
 }
 .subboard-item-check.checked { background: var(--green); border-color: var(--green); color: #fff; }
 .subboard-item-text {
-  flex: 1; font-size: 13px; color: var(--text); border: none;
+  flex: 1; font-size: 14px; color: var(--text); border: none;
   background: transparent; outline: none; font-family: var(--font);
   resize: none; line-height: 1.4;
 }
@@ -393,6 +393,22 @@ header {
   transition: all 0.15s; margin-bottom: 16px;
 }
 .add-subboard-btn:hover { border-color: var(--orange); color: var(--orange); background: var(--orange-bg); }
+
+
+/* Collapsible modal sections */
+.sec-title-collapsible {
+  font-size: 12px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--text3);
+  padding-bottom: 8px; border-bottom: 1.5px solid var(--border);
+  margin-bottom: 12px; margin-top: 6px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; user-select: none;
+}
+.sec-title-collapsible:hover { color: var(--text2); }
+.sec-collapse-toggle { font-size: 10px; transition: transform 0.15s; }
+.sec-collapse-toggle.open { transform: rotate(180deg); }
+.sec-collapsible-body { overflow: hidden; transition: all 0.2s; }
+.sec-collapsible-body.collapsed { display: none; }
 
 /* loading */
 #loading { position: fixed; inset: 0; background: var(--white); display: flex; align-items: center; justify-content: center; z-index: 999; flex-direction: column; gap: 12px; }
@@ -474,6 +490,11 @@ header {
   <h2 id="m-title-display"></h2>
 
   <!-- Cover -->
+  <div class="sec-title-collapsible" onclick="toggleSecCollapse('sec-basic',this)">
+    Projektdetaljer
+    <span class="sec-collapse-toggle open">▼</span>
+  </div>
+  <div class="sec-collapsible-body" id="sec-basic">
   <div id="cover-area" style="margin-bottom:14px">
     <div id="cover-preview"></div>
     <div style="display:flex;gap:6px">
@@ -507,11 +528,17 @@ header {
       <input id="m-next-action" placeholder="Beskriv næste skridt..." oninput="dirtyModal()">
     </div>
     <div class="field full"><label>Vejr-note / Fotovindue</label><input id="m-weather" oninput="dirtyModal()"></div>
-    <div class="field full"><label>Noter</label><textarea id="m-notes" rows="3" oninput="dirtyModal()"></textarea></div>
+    <div class="field full"><label>Noter</label><textarea id="m-notes" rows="6" style="min-height:120px;resize:vertical" oninput="dirtyModal()"></textarea></div>
   </div>
 
+  </div><!-- end sec-basic -->
+
   <!-- TEKNISKE OPLYSNINGER -->
-  <div class="sec-title">Tekniske oplysninger</div>
+  <div class="sec-title-collapsible" onclick="toggleSecCollapse('sec-tech',this)" style="margin-top:12px">
+    Tekniske oplysninger
+    <span class="sec-collapse-toggle">▼</span>
+  </div>
+  <div class="sec-collapsible-body collapsed" id="sec-tech">
   <div class="tech-fields">
     <div class="tech-field">
       <label>Koordinatsystem</label>
@@ -552,6 +579,7 @@ header {
 
   <!-- EMAIL LINKS -->
   <div class="sec-title">Vigtige emails</div>
+  <div class="sec-collapsible-body collapsed" id="sec-emails">
   <div class="email-list" id="email-list"></div>
   <div class="email-add-row">
     <div class="field"><label>Beskrivelse</label><input id="em-label" placeholder="Fx: Tilbud accept"></div>
@@ -560,6 +588,8 @@ header {
   </div>
 
   <!-- Hours calc -->
+  </div><!-- end sec-time -->
+
   <div id="hours-calc" style="margin-bottom:16px;display:none">
     <div class="sec-title">Timeoverblik</div>
     <div class="time-summary">
@@ -571,28 +601,45 @@ header {
   </div>
 
   <!-- Checklist -->
-  <div class="sec-title">Tjekliste — afklaring med kunde</div>
+  </div><!-- end sec-emails -->
+
+  <div class="sec-title-collapsible" onclick="toggleSecCollapse('sec-checklist',this)" style="margin-top:12px">
+    Tjekliste — afklaring med kunde
+    <span class="sec-collapse-toggle open">▼</span>
+  </div>
+  <div class="sec-collapsible-body" id="sec-checklist">
   <div class="checklist" id="checklist"></div>
   <button class="btn btn-blue btn-sm" style="margin-bottom:16px" onclick="generateChecklistMail()">✉ Generér mail om manglende punkter</button>
 
   <!-- Time log -->
-  <div class="sec-title">Tidsforbrug</div>
-  <div class="time-entries" id="time-entries"></div>
-  <div class="time-add-row" style="margin-bottom:16px">
+  </div><!-- end sec-checklist -->
+
+  <div class="sec-title-collapsible" onclick="toggleSecCollapse('sec-time',this)" style="margin-top:12px">
+    Tidsforbrug
+    <span class="sec-collapse-toggle open">▼</span>
+  </div>
+  <div class="sec-collapsible-body" id="sec-time">
+  <div class="time-add-row" style="margin-bottom:10px">
     <div class="field"><label>Dato</label><input type="date" id="te-date"></div>
     <div class="field"><label>Beskrivelse</label><input id="te-desc" placeholder="Fotografering"></div>
     <div class="field"><label>Timer</label><input type="number" id="te-hours" placeholder="2" step="0.5" min="0"></div>
     <div class="field"><label>&nbsp;</label><button class="btn btn-sm" onclick="addTimeEntry()">+ Log</button></div>
   </div>
+  <div class="time-entries" id="time-entries"></div>
 
   <!-- Billy -->
-  <div class="sec-title">Billy — Faktura</div>
+  <div class="sec-title-collapsible" onclick="toggleSecCollapse('sec-billy',this)" style="margin-top:12px">
+    Billy — Faktura
+    <span class="sec-collapse-toggle">▼</span>
+  </div>
+  <div class="sec-collapsible-body collapsed" id="sec-billy">
   <div class="billy-row">
     <div class="billy-status none" id="billy-status">Ingen faktura</div>
     <div style="flex:1"></div>
     <button class="btn btn-sm" id="billy-btn" onclick="billyAction()">Opret fakturaudkast</button>
   </div>
   <div id="billy-link" style="font-size:11px;color:var(--text3);margin-bottom:16px"></div>
+  </div><!-- end sec-billy -->
 
   <div class="modal-footer">
     <div style="display:flex;gap:6px">
@@ -1243,7 +1290,9 @@ async function saveModal(){
   p.phase=document.getElementById('m-phase').value;
   modalDirty=false;
   renderBoard();
-  closeModal();
+  // Update modal title without closing
+  document.getElementById('m-id-display').textContent=p.taskId||'';
+  document.getElementById('m-title-display').textContent=`${p.taskId||''} ${p.client||'Ny opgave'}`.trim();
   await saveProject(p);
   if(p.deadline&&p.deadline!==oldDl&&googleToken) pushDeadlineToCalendar(p);
   toast('Gemt ✓','success');
@@ -1727,6 +1776,15 @@ async function pushTimeEntryToCalendar(idx){
       toast('Tilføjet til Google Kalender ✓','success');
     }
   } catch(e){toast('Fejl ved kalender-push','error');}
+}
+
+function toggleSecCollapse(id, headerEl){
+  const body = document.getElementById(id);
+  if(!body) return;
+  const isCollapsed = body.classList.contains('collapsed');
+  body.classList.toggle('collapsed', !isCollapsed);
+  const toggle = headerEl ? headerEl.querySelector('.sec-collapse-toggle') : null;
+  if(toggle) toggle.classList.toggle('open', isCollapsed);
 }
 
 function toggleCol(phase){
