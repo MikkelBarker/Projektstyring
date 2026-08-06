@@ -944,13 +944,16 @@ async function sheetsUpdate(range, values) {
 
 async function sheetsAppend(values) {
   const s = getSettings();
+  const range = `${SHEET_NAME}!A:AD`;
   const r = await fetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${s.sheetId}/values/${SHEET_NAME}!A:A:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
+    `https://sheets.googleapis.com/v4/spreadsheets/${s.sheetId}/values/${encodeURIComponent(range)}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
     { method:'POST', headers:{ Authorization:`Bearer ${googleToken}`, 'Content-Type':'application/json' },
-      body: JSON.stringify({ range:`${SHEET_NAME}!A:A`, majorDimension:'ROWS', values }) }
+      body: JSON.stringify({ range, majorDimension:'ROWS', values }) }
   );
   if(r.status===401){ handleTokenExpired(); throw new Error('Token expired'); }
-  return r.json();
+  const d = await r.json();
+  if(d.error) { console.error('Append error:', d.error); throw new Error(d.error.message); }
+  return d;
 }
 
 async function loadFromSheets() {
@@ -983,18 +986,24 @@ async function saveProject(p) {
   if(!googleToken) { toast('Ikke forbundet til Google','error'); return; }
   setSaving(true);
   try {
-    // find row index
+    const row = projectToRow(p);
+    console.log('Gemmer projekt:', p.id, 'emails:', p.emails, 'row length:', row.length);
+    
     const d = await sheetsGet(`${SHEET_NAME}!A:A`);
     const ids = (d.values||[]).map(r=>r[0]);
     const rowIdx = ids.indexOf(p.id);
+    
     if(rowIdx<1) {
-      // new row — append
-      await sheetsAppend([projectToRow(p)]);
+      console.log('Ny række — append');
+      await sheetsAppend([row]);
     } else {
       const range = `${SHEET_NAME}!A${rowIdx+1}:AD${rowIdx+1}`;
-      await sheetsUpdate(range, [projectToRow(p)]);
+      console.log('Opdaterer række', rowIdx+1, 'range:', range);
+      await sheetsUpdate(range, [row]);
     }
+    console.log('Gemt OK');
   } catch(e) {
+    console.error('Gem fejl:', e);
     toast('Gem fejlede: '+e.message,'error');
   } finally { setSaving(false); }
 }
