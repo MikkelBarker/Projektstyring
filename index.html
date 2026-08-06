@@ -800,9 +800,11 @@ const COL = {
   hoursAgreed:6, nextAction:7, nextOwner:8, weather:9, notes:10,
   phase:11, checklist:12, timeLog:13, color:14, coverData:15,
   billyQuoteId:16, billyInvoiceId:17, billyPaid:18, archived:19,
-  extraHours:20, calDeadlineId:21
+  extraHours:20, calDeadlineId:21,
+  coord:22, offset:23, vegetation:24, deliveryFormat:25,
+  camera:26, techNotes:27, emails:28, subboards:29
 };
-const NUM_COLS = 29;
+const NUM_COLS = 30;
 
 // ═══════════════════════════════
 // STATE
@@ -868,7 +870,7 @@ function projectToRow(p) {
   row[COL.archived] = p.archived?'true':'false';
   row[COL.extraHours] = p.extraHours||'';
   row[COL.calDeadlineId] = p.calDeadlineId||'';
-  if(NUM_COLS > 22) {
+  if(true) {
     row[COL.coord] = p.coord||'';
     row[COL.offset] = p.offset||'';
     row[COL.vegetation] = p.vegetation||'';
