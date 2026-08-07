@@ -364,6 +364,7 @@ header {
 
 .subboard-body { padding: 10px 14px; display: none; }
 .subboard-body.open { display: block; }
+.subboard-item-text { min-height: 24px; }
 
 .subboard-items { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; }
 .subboard-item {
@@ -615,9 +616,9 @@ header {
   <!-- TEKNISKE OPLYSNINGER -->
   <div class="sec-title-collapsible" onclick="toggleSecCollapse('sec-tech',this)" style="margin-top:12px">
     Tekniske oplysninger
-    <span class="sec-collapse-toggle">▼</span>
+    <span class="sec-collapse-toggle open">▼</span>
   </div>
-  <div class="sec-collapsible-body collapsed" id="sec-tech">
+  <div class="sec-collapsible-body" id="sec-tech">
   <div class="tech-fields">
     <div class="tech-field">
       <label>Koordinatsystem</label>
@@ -650,11 +651,16 @@ header {
   </div>
 
   <!-- SUB-BOARDS -->
-  <div class="sec-title" style="display:flex;align-items:center;justify-content:space-between">
+  <div class="sec-title-collapsible" onclick="toggleSecCollapse('sec-subboards',this)" style="margin-top:12px">
     Sub-boards
-    <button class="btn btn-sm btn-primary" onclick="addSubboard()">+ Board</button>
+    <span class="sec-collapse-toggle open">▼</span>
   </div>
-  <div class="subboards" id="subboards-container"></div>
+  <div class="sec-collapsible-body" id="sec-subboards">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+      <button class="btn btn-sm btn-primary" onclick="addSubboard()">+ Board</button>
+    </div>
+    <div class="subboards" id="subboards-container"></div>
+  </div>
 
   <!-- EMAIL LINKS -->
   <div class="sec-title-collapsible" onclick="toggleSecCollapse('sec-emails',this)" style="margin-top:12px">
@@ -1381,6 +1387,18 @@ async function saveModal(){
   p.weather=document.getElementById('m-weather').value.trim();
   p.notes=document.getElementById('m-notes').value.trim();
   p.phase=document.getElementById('m-phase').value;
+  p.label=document.getElementById('m-label')?document.getElementById('m-label').value:'';
+  // Tekniske oplysninger
+  p.coord=document.getElementById('m-coord').value.trim();
+  p.offset=document.getElementById('m-offset').value.trim();
+  p.vegetation=document.getElementById('m-vegetation').value.trim();
+  p.deliveryFormat=document.getElementById('m-delivery-format').value.trim();
+  p.camera=document.getElementById('m-camera').value.trim();
+  p['3dformat']=document.getElementById('m-3dformat').value.trim();
+  p.techNotes=document.getElementById('m-tech-notes').value.trim();
+  // Sikr at emails og subboards bevares
+  if(!p.emails) p.emails=[];
+  if(!p.subboards) p.subboards=[];
   modalDirty=false;
   renderBoard();
   // Update modal title without closing
@@ -1727,7 +1745,7 @@ function renderSubboards(p){
         <span class="subboard-toggle ${sb.open?'open':''}" onclick="toggleSubboard(${si})" style="cursor:pointer;padding:4px 6px">▼</span>
         <button class="subboard-del" onclick="deleteSubboard(${si})">✕</button>
       </div>
-      <div class="subboard-body ${sb.open!==false?'open':''}">
+      <div class="subboard-body ${sb.open===false?'':'open'}">
         <div class="subboard-items" id="sb-items-${si}">
           ${(sb.items||[]).map((item,ii)=>`
             <div class="subboard-item">
@@ -1737,9 +1755,10 @@ function renderSubboards(p){
               </div>
               <textarea class="subboard-item-text ${item.checked?'checked-text':''}" 
                         rows="1"
+                        data-sb="${si}" data-item="${ii}"
                         onchange="updateSbItem(${si},${ii},this.value)"
                         oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
-                        >${item.text||''}</textarea>
+                        ></textarea>
               <button class="subboard-item-del" onclick="deleteSbItem(${si},${ii})">✕</button>
             </div>`).join('')}
         </div>
@@ -1752,9 +1771,16 @@ function renderSubboards(p){
       </div>
     </div>`).join('');
   
-  // Auto-resize textareas
+  // Set textarea values and auto-resize (innerHTML doesn't work for textareas)
   container.querySelectorAll('.subboard-item-text').forEach(ta=>{
-    ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';
+    const si = parseInt(ta.dataset.sb);
+    const ii = parseInt(ta.dataset.item);
+    const p2 = projects.find(x=>x.id===currentId);
+    if(p2 && p2.subboards[si] && p2.subboards[si].items[ii]){
+      ta.value = p2.subboards[si].items[ii].text || '';
+    }
+    ta.style.height='auto';
+    ta.style.height=(ta.scrollHeight||32)+'px';
   });
 }
 
