@@ -989,7 +989,19 @@ async function ensureSheetHeaders() {
 }
 
 async function saveProject(p) {
-  if(!googleToken) { toast('Ikke forbundet til Google','error'); return; }
+  if(!googleToken) { 
+    showReloginBanner();
+    toast('Ikke forbundet — log ind igen for at gemme','error'); 
+    return; 
+  }
+  // Check token age before saving
+  const tokenAge = (Date.now() - parseInt(localStorage.getItem('mb3_gtoken_time')||'0')) / 60000;
+  if(tokenAge > 58){
+    showReloginBanner();
+    toast('Session udløbet — log ind igen','error');
+    handleTokenExpired();
+    return;
+  }
   setSaving(true);
   try {
     const row = projectToRow(p);
@@ -1550,7 +1562,12 @@ async function syncCalendar(){
     if(r.status===401){handleTokenExpired();return;}
     const d=await r.json();
     const idPat=/\b\d{2}_\d{3}\b/;
-    calEntries=[];let matched=0;
+    
+    // Collect all active calendar event IDs
+    const activeCalIds = new Set();
+    calEntries=[];
+    let added=0, removed=0;
+
     (d.items||[]).forEach(ev=>{
       const title=ev.summary||'';
       const match=title.match(idPat); if(!match) return;
@@ -1561,20 +1578,44 @@ async function syncCalendar(){
       const hours=ev.start?.dateTime?(endD-startD)/3600000:8;
       const dateStr=startD.toISOString().slice(0,10);
       const proj=projects.find(p=>p.taskId===taskId);
+      activeCalIds.add(ev.id);
       calEntries.push({id:ev.id,date:dateStr,title,hours:parseFloat(hours.toFixed(2)),
         project:proj?`${proj.taskId} ${proj.client}`:taskId,color:proj?proj.color:'#2563a8',taskId});
       if(proj){
         if(!proj.timeLog) proj.timeLog=[];
         if(!proj.timeLog.find(e=>e.calId===ev.id)){
           proj.timeLog.push({date:dateStr,desc:title,hours:parseFloat(hours.toFixed(2)),fromCal:true,calId:ev.id});
-          matched++;
+          added++;
         }
       }
     });
-    if(matched>0){
-      for(const p of projects.filter(p=>p.timeLog?.some(e=>e.fromCal&&calEntries.find(c=>c.id===e.calId)))) await saveProject(p);
-    }
-    toast(`✓ ${calEntries.length} opslag, ${matched} timer tilføjet`,'success');
+
+    // Remove entries that no longer exist in calendar
+    const projectsToSave = new Set();
+    projects.forEach(p=>{
+      if(!p.timeLog) return;
+      const before = p.timeLog.length;
+      p.timeLog = p.timeLog.filter(e=>{
+        // Keep manual entries (no calId) and entries still in calendar
+        if(!e.fromCal || !e.calId) return true;
+        if(activeCalIds.has(e.calId)) return true;
+        removed++;
+        return false;
+      });
+      if(p.timeLog.length !== before) projectsToSave.add(p.id);
+    });
+
+    // Save all changed projects
+    const changedProjects = projects.filter(p=>
+      projectsToSave.has(p.id) ||
+      p.timeLog?.some(e=>e.fromCal && calEntries.find(c=>c.id===e.calId))
+    );
+    for(const p of changedProjects) await saveProject(p);
+
+    const msg = removed > 0
+      ? `✓ ${calEntries.length} opslag — ${added} tilføjet, ${removed} fjernet`
+      : `✓ ${calEntries.length} opslag, ${added} timer tilføjet`;
+    toast(msg,'success');
     if(document.getElementById('view-timeline').classList.contains('active')) renderTimeline();
     renderBoard();
   }catch(e){toast('Fejl: '+e.message,'error');}
@@ -1634,7 +1675,56 @@ function checkOAuthReturn(){
 
 function handleTokenExpired(){
   googleToken=null;localStorage.removeItem('mb3_gtoken');
-  toast('Google session udløbet — forbind igen','warn');updateGoogleStatus();
+  localStorage.removeItem('mb3_gtoken_time');
+  updateGoogleStatus();
+  // Show prominent re-login notification
+  showReloginBanner();
+}
+
+function showReloginBanner(){
+  let banner = document.getElementById('relogin-banner');
+  if(!banner){
+    banner = document.createElement('div');
+    banner.id = 'relogin-banner';
+    banner.style.cssText = `
+      position:fixed;top:0;left:0;right:0;z-index:9998;
+      background:#c0392b;color:#fff;
+      padding:14px 24px;
+      display:flex;align-items:center;justify-content:space-between;
+      font-family:var(--font);font-size:14px;font-weight:600;
+      box-shadow:0 2px 12px rgba(0,0,0,0.3);
+    `;
+    banner.innerHTML = `
+      <span>⚠ Din Google-session er udløbet — ændringer gemmes ikke før du logger ind igen</span>
+      <button onclick="reconnectGoogle()" style="background:#fff;color:#c0392b;border:none;border-radius:6px;padding:8px 16px;font-weight:700;cursor:pointer;font-family:var(--font);font-size:13px">Log ind igen</button>
+    `;
+    document.body.prepend(banner);
+  }
+}
+
+function hideReloginBanner(){
+  const b = document.getElementById('relogin-banner');
+  if(b) b.remove();
+}
+
+function reconnectGoogle(){
+  // Store current URL to return after auth
+  localStorage.setItem('mb3_return_after_auth','1');
+  googleAuth();
+}
+
+// Check token age — Google tokens expire after ~1 hour
+function checkTokenAge(){
+  if(!googleToken) return;
+  const tokenTime = parseInt(localStorage.getItem('mb3_gtoken_time')||'0');
+  const age = (Date.now() - tokenTime) / 60000; // minutes
+  if(age > 50){ // warn after 50 min, expired at 60
+    if(age > 60){
+      handleTokenExpired();
+    } else {
+      toast('Din Google-session udløber snart — gem dit arbejde og log ind igen','warn');
+    }
+  }
 }
 
 function updateGoogleStatus(){
