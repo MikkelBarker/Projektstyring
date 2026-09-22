@@ -507,6 +507,7 @@ header {
       Forbind med Google
     </button>
     <div class="connect-hint">Du logger ind med info@mikkelbarker.dk</div>
+    <button onclick="hideConnectScreen()" style="margin-top:16px;background:none;border:none;color:#8a9ab0;font-size:12px;cursor:pointer;font-family:var(--font)">← Tilbage uden at logge ind</button>
   </div>
 </div>
 
@@ -821,6 +822,10 @@ let currentId = null;
 let modalDirty = false;
 let currentOwner = 'me';
 let googleToken = localStorage.getItem('mb3_gtoken') || null;
+// If token exists but no timestamp, set it now so we don't false-expire
+if(googleToken && !localStorage.getItem('mb3_gtoken_time')){
+  localStorage.setItem('mb3_gtoken_time', Date.now().toString());
+}
 let isSaving = false;
 
 function getSettings() {
@@ -995,12 +1000,16 @@ async function saveProject(p) {
     return; 
   }
   // Check token age before saving
-  const tokenAge = (Date.now() - parseInt(localStorage.getItem('mb3_gtoken_time')||'0')) / 60000;
-  if(tokenAge > 58){
-    showReloginBanner();
-    toast('Session udløbet — log ind igen','error');
-    handleTokenExpired();
-    return;
+  const tokenTime = parseInt(localStorage.getItem('mb3_gtoken_time')||'0');
+  // Only check age if we have a valid timestamp (> year 2020)
+  if(tokenTime > 1580000000000){
+    const tokenAge = (Date.now() - tokenTime) / 60000;
+    if(tokenAge > 58){
+      showReloginBanner();
+      toast('Session udløbet — log ind igen','error');
+      handleTokenExpired();
+      return;
+    }
   }
   setSaving(true);
   try {
@@ -1644,6 +1653,11 @@ async function pushDeadlineToCalendar(p){
 // ═══════════════════════════════
 // GOOGLE OAUTH
 // ═══════════════════════════════
+function hideConnectScreen(){
+  const cs = document.getElementById('connect-screen');
+  if(cs) cs.classList.remove('show');
+}
+
 function connectFromScreen(){
   const clientInput = document.getElementById('cs-gclient');
   const clientId = clientInput ? clientInput.value.trim() : '';
@@ -1708,22 +1722,31 @@ function hideReloginBanner(){
 }
 
 function reconnectGoogle(){
-  // Store current URL to return after auth
-  localStorage.setItem('mb3_return_after_auth','1');
-  googleAuth();
+  // Show the connect screen so user can see the login button clearly
+  const cs = document.getElementById('connect-screen');
+  if(cs){
+    // Pre-fill client ID
+    const csInput = document.getElementById('cs-gclient');
+    if(csInput) csInput.value = localStorage.getItem('mb3_gclient')||'';
+    cs.classList.add('show');
+  } else {
+    // Fallback: go directly to Google auth
+    googleAuth();
+  }
 }
 
 // Check token age — Google tokens expire after ~1 hour
 function checkTokenAge(){
   if(!googleToken) return;
   const tokenTime = parseInt(localStorage.getItem('mb3_gtoken_time')||'0');
+  // Only check if we have a valid timestamp (after year 2020)
+  if(tokenTime < 1580000000000) return;
   const age = (Date.now() - tokenTime) / 60000; // minutes
-  if(age > 50){ // warn after 50 min, expired at 60
-    if(age > 60){
-      handleTokenExpired();
-    } else {
-      toast('Din Google-session udløber snart — gem dit arbejde og log ind igen','warn');
-    }
+  if(age > 55){
+    handleTokenExpired();
+  } else if(age > 48){
+    toast('Din Google-session udløber snart — klik Log ind igen','warn');
+    showReloginBanner();
   }
 }
 
