@@ -1575,7 +1575,7 @@ async function syncCalendar(){
     // Collect all active calendar event IDs
     const activeCalIds = new Set();
     calEntries=[];
-    let added=0, removed=0;
+    let added=0, removed=0, updated=0;
 
     (d.items||[]).forEach(ev=>{
       const title=ev.summary||'';
@@ -1592,9 +1592,20 @@ async function syncCalendar(){
         project:proj?`${proj.taskId} ${proj.client}`:taskId,color:proj?proj.color:'#2563a8',taskId});
       if(proj){
         if(!proj.timeLog) proj.timeLog=[];
-        if(!proj.timeLog.find(e=>e.calId===ev.id)){
+        const existing = proj.timeLog.find(e=>e.calId===ev.id);
+        if(!existing){
+          // Ny post
           proj.timeLog.push({date:dateStr,desc:title,hours:parseFloat(hours.toFixed(2)),fromCal:true,calId:ev.id});
           added++;
+        } else {
+          // Opdater hvis timer eller dato er ændret
+          const newHours = parseFloat(hours.toFixed(2));
+          if(existing.hours !== newHours || existing.date !== dateStr || existing.desc !== title){
+            existing.hours = newHours;
+            existing.date = dateStr;
+            existing.desc = title;
+            updated++;
+          }
         }
       }
     });
@@ -1605,13 +1616,19 @@ async function syncCalendar(){
       if(!p.timeLog) return;
       const before = p.timeLog.length;
       p.timeLog = p.timeLog.filter(e=>{
-        // Keep manual entries (no calId) and entries still in calendar
         if(!e.fromCal || !e.calId) return true;
         if(activeCalIds.has(e.calId)) return true;
         removed++;
         return false;
       });
       if(p.timeLog.length !== before) projectsToSave.add(p.id);
+    });
+    // Also save projects where hours were updated
+    projects.forEach(p=>{
+      if(p.timeLog?.some(e=>e.fromCal && calEntries.find(c=>c.id===e.calId && 
+        (c.hours!==e.hours || c.date!==e.date)))){
+        projectsToSave.add(p.id);
+      }
     });
 
     // Save all changed projects
@@ -1621,9 +1638,11 @@ async function syncCalendar(){
     );
     for(const p of changedProjects) await saveProject(p);
 
-    const msg = removed > 0
-      ? `✓ ${calEntries.length} opslag — ${added} tilføjet, ${removed} fjernet`
-      : `✓ ${calEntries.length} opslag, ${added} timer tilføjet`;
+    const parts = [];
+    if(added > 0) parts.push(`${added} tilføjet`);
+    if(updated > 0) parts.push(`${updated} opdateret`);
+    if(removed > 0) parts.push(`${removed} fjernet`);
+    const msg = `✓ ${calEntries.length} opslag${parts.length ? ' — ' + parts.join(', ') : ', ingen ændringer'}`;
     toast(msg,'success');
     if(document.getElementById('view-timeline').classList.contains('active')) renderTimeline();
     renderBoard();
