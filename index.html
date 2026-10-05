@@ -675,6 +675,8 @@ header {
     <div class="field"><label>Gmail søgeord eller URL</label><input id="em-addr" placeholder="Fx: from:kunde@firma.dk tilbud" onkeydown="if(event.key==='Enter') addEmail()"></div>
     <div class="field"><label>&nbsp;</label><button class="btn btn-sm btn-primary" onclick="addEmail()">+ Tilføj</button></div>
   </div>
+  <button class="btn btn-blue btn-sm" style="width:100%;margin-top:6px" onclick="searchGmailForProject()">🔍 Søg i Gmail efter projektinfo</button>
+  <div id="gmail-scan-result" style="margin-top:8px"></div>
 
   <!-- Hours calc -->
   </div><!-- end sec-time -->
@@ -1109,12 +1111,15 @@ function cardHTML(p) {
     ${p.nextAction?`<div class="card-next ${p.nextOwner==='kunde'?'kunde':''}"><div class="card-next-label">${ownerLabel}</div>${p.nextAction}</div>`:''}
     <div class="card-meta">
       ${dlStr?`<span class="meta-item ${dlClass}">📅 ${dlStr}</span>`:''}
-      ${agreed>0?`<span class="meta-item ${warnHours?'warn':''}">⏱ ${left!==null?left.toFixed(1)+'t tilbage':agreed+'t'}</span>`:''}
+      ${logged>0||agreed>0?`<span class="meta-item ${warnHours?'warn':''}">⏱ ${agreed>0?(left!==null?left.toFixed(1)+'t tilbage':agreed+'t aftalt'):logged.toFixed(1)+'t brugt'}</span>`:''}
       ${p.billyPaid?`<span class="meta-item" style="color:var(--green)">✓ Betalt</span>`:''}
     </div>
-    ${agreed>0?`<div class="hours-bar">
-      <div class="hours-bar-track"><div class="hours-bar-fill" style="width:${pctUsed*100}%;background:${barColor}"></div></div>
-      <div class="hours-bar-labels"><span class="used">${logged.toFixed(1)}t brugt</span><span>${agreed.toFixed(1)}t total</span></div>
+    ${(logged>0||agreed>0)?`<div class="hours-bar">
+      ${agreed>0?`<div class="hours-bar-track"><div class="hours-bar-fill" style="width:${pctUsed*100}%;background:${barColor}"></div></div>`:''}
+      <div class="hours-bar-labels">
+        <span class="used">${logged.toFixed(1)}t brugt</span>
+        ${agreed>0?`<span>${agreed.toFixed(1)}t total</span>`:'<span style="color:var(--text3)">Intet budget</span>'}
+      </div>
     </div>`:''}
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:7px;border-top:1px solid var(--border)">
       <div style="display:flex;align-items:center;gap:5px">
@@ -1282,15 +1287,21 @@ function updateHoursCalc(){
   const left=agreed-logged;
 
   const box=document.getElementById('hours-calc');
-  if(agreed>0){
+  const loggedAny = logged>0||agreed>0;
+  if(loggedAny){
     box.style.display='';
-    document.getElementById('hc-total').textContent=agreed.toFixed(1)+'t';
+    document.getElementById('hc-total').textContent=agreed>0?agreed.toFixed(1)+'t':'—';
     document.getElementById('hc-logged').textContent=logged.toFixed(1)+'t';
     const leftEl=document.getElementById('hc-left');
-    leftEl.textContent=left.toFixed(1)+'t';
-    leftEl.className='time-stat-val'+(left<0?' over':left<agreed*0.1?' over':'');
+    if(agreed>0){
+      leftEl.textContent=left.toFixed(1)+'t';
+      leftEl.className='time-stat-val'+(left<0?' over':left<agreed*0.1?' over':'');
+    } else {
+      leftEl.textContent='—';
+      leftEl.className='time-stat-val';
+    }
     const warnBox=document.getElementById('hours-warning-box');
-    warnBox.style.display=left<agreed*0.1&&left>=0?'':'none';
+    warnBox.style.display=(agreed>0&&left<agreed*0.1&&left>=0)?'':'none';
   } else { box.style.display='none'; }
 }
 
@@ -1672,6 +1683,28 @@ async function pushDeadlineToCalendar(p){
 // ═══════════════════════════════
 // GOOGLE OAUTH
 // ═══════════════════════════════
+function searchGmailForProject(){
+  const p = projects.find(x=>x.id===currentId); if(!p) return;
+  const taskId = p.taskId||'';
+  const client = p.client||'';
+  if(!taskId&&!client){toast('Udfyld opgave ID eller kundenavn først','error');return;}
+
+  // Build Gmail search URL with project keywords
+  const query = [taskId, client].filter(Boolean).join(' ');
+  const gmailUrl = `https://mail.google.com/mail/u/0/#search/${encodeURIComponent(query)}`;
+
+  const result = document.getElementById('gmail-scan-result');
+  result.innerHTML = `
+    <div style="padding:10px 12px;background:var(--blue-bg);border:1px solid var(--blue);border-radius:8px;font-size:12px;color:var(--blue)">
+      <div style="font-weight:700;margin-bottom:6px">🔍 Søger efter: "${query}"</div>
+      <div style="margin-bottom:8px">Åbn Gmail og find relevante emails — kopiér derefter linket og tilføj det herover.</div>
+      <a href="${gmailUrl}" target="_blank" class="btn btn-blue btn-sm" style="text-decoration:none;display:inline-flex">Åbn Gmail-søgning ↗</a>
+    </div>`;
+
+  // Also open Gmail directly
+  window.open(gmailUrl, '_blank');
+}
+
 function hideConnectScreen(){
   const cs = document.getElementById('connect-screen');
   if(cs) cs.classList.remove('show');
