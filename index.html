@@ -72,8 +72,8 @@ header {
 .btn-ghost:hover { background: var(--bg2); border-color: var(--border); }
 
 /* ── VIEWS ── */
-#view-board, #view-archive, #view-timeline { flex: 1; overflow: hidden; display: none; flex-direction: column; }
-#view-board.active, #view-archive.active, #view-timeline.active { display: flex; }
+#view-board, #view-archive, #view-timeline, #view-loensomhed { flex: 1; overflow: hidden; display: none; flex-direction: column; }
+#view-board.active, #view-archive.active, #view-timeline.active, #view-loensomhed.active { display: flex; }
 
 /* ── BOARD ── */
 #board { display: flex; gap: 12px; padding: 16px 20px; overflow-x: auto; flex: 1; align-items: flex-start; }
@@ -249,6 +249,58 @@ header {
 .gantt-days { flex: 1; display: flex; min-width: 700px; }
 .gantt-day { flex: 1; font-size: 10px; color: var(--text3); text-align: center; font-weight: 500; }
 .gantt-day.today { color: var(--red); font-weight: 700; background: rgba(192,57,43,0.08); border-radius: 3px; }
+
+
+/* ── LØNSOMHED ── */
+.day-chip { display:flex; align-items:center; gap:14px; padding:6px 12px; border:1px solid var(--border2); border-radius:8px; background:var(--white); cursor:pointer; font-size:13px; white-space:nowrap; }
+.day-chip:hover { border-color: var(--orange); }
+.day-chip .dc-item { display:grid; gap:3px; min-width:92px; }
+.day-chip .dc-lbl { font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--text3); }
+.day-chip .dc-val { font-family:var(--mono); font-weight:500; }
+.dc-bar { height:4px; background:var(--bg2); border-radius:2px; overflow:hidden; }
+.dc-bar i { display:block; height:100%; background:var(--green); border-radius:2px; }
+.dc-bar i.low { background:var(--amber); }
+#view-loensomhed { padding: 20px 24px; overflow-y:auto; gap:16px; }
+.ls-wrap { display:grid; gap:16px; max-width:1200px; width:100%; margin:0 auto; }
+.ls-panel { background:var(--white); border:1px solid var(--border); border-radius:var(--r); box-shadow:var(--shadow); padding:18px 20px; }
+.ls-head { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:8px 16px; }
+.ls-title { font-size:18px; font-weight:700; }
+.ls-sub { font-size:12px; color:var(--text3); }
+.ls-kpis { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+@media (max-width:900px){ .ls-kpis{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.ls-kpi .k-lbl { font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--text3); }
+.ls-kpi .k-val { font-family:var(--mono); font-size:28px; font-weight:500; margin-top:4px; }
+.ls-kpi .k-goal { font-size:12px; color:var(--text2); margin-top:2px; }
+.ls-kpi .k-kr { font-size:12px; color:var(--text3); font-family:var(--mono); }
+.ls-kpi .dc-bar { height:6px; margin-top:8px; }
+.ls-chart { position:relative; display:grid; grid-auto-flow:column; grid-auto-columns:minmax(0,1fr); gap:4px; height:180px; align-items:end; margin-top:14px; border-bottom:1px solid var(--border2); }
+.ls-col { display:flex; flex-direction:column-reverse; height:100%; justify-content:flex-start; position:relative; }
+.ls-col i { display:block; width:100%; }
+.ls-col i.b { background:var(--blue); border-radius:0 0 0 0; }
+.ls-col i.o { background:var(--red); opacity:.75; }
+.ls-col i.u { background:var(--text3); opacity:.5; }
+.ls-col i:last-child { border-radius:3px 3px 0 0; }
+.ls-col.today i.b { background:var(--orange); }
+.ls-col.weekend { opacity:.45; }
+.ls-goal { position:absolute; left:0; right:0; border-top:2px dashed var(--green); pointer-events:none; }
+.ls-goal span { position:absolute; right:0; top:-18px; font-size:11px; color:var(--green); font-family:var(--mono); background:var(--white); padding:0 4px; }
+.ls-xlab { display:grid; grid-auto-flow:column; grid-auto-columns:minmax(0,1fr); gap:4px; font-family:var(--mono); font-size:10px; color:var(--text3); text-align:center; margin-top:4px; }
+.ls-legend { display:flex; flex-wrap:wrap; gap:14px; font-size:12px; color:var(--text2); margin-top:10px; }
+.ls-legend span::before { content:""; display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:6px; vertical-align:-1px; background:var(--c); }
+.ls-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:10px; }
+.ls-table th { text-align:left; font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--text3); font-weight:500; padding:6px; border-bottom:1px solid var(--border2); }
+.ls-table td { padding:7px 6px; border-bottom:1px solid var(--border); }
+.ls-table .r { text-align:right; font-family:var(--mono); white-space:nowrap; }
+.ls-pill { font-size:11px; padding:2px 8px; border-radius:999px; white-space:nowrap; }
+.ls-pill.good { background:var(--green-bg); color:var(--green); }
+.ls-pill.warn { background:var(--amber-bg); color:var(--amber); }
+.ls-pill.bad { background:var(--red-bg); color:var(--red); }
+.ls-row2 { display:grid; grid-template-columns:2fr 1fr; gap:16px; }
+@media (max-width:900px){ .ls-row2{ grid-template-columns:1fr; } }
+.ls-link { display:inline-flex; align-items:center; gap:8px; margin-top:12px; padding:8px 14px; border-radius:7px; background:var(--orange); color:#fff; text-decoration:none; font-size:14px; font-weight:500; }
+.ls-goalin { width:64px; font-family:var(--mono); font-size:13px; padding:3px 6px; border:1px solid var(--border2); border-radius:5px; text-align:right; }
+@media (max-width:1100px){ .day-chip .dc-item:nth-child(2){ display:none; } }
+@media (max-width:760px){ .day-chip{ display:none; } }
 
 /* overblik */
 #view-overblik { flex: 1; overflow: hidden; display: none; flex-direction: column; }
@@ -523,6 +575,11 @@ header {
     <button class="tab" onclick="switchView('timeline')">Timeline</button>
     <button class="tab" onclick="switchView('archive')">Arkiv</button>
     <button class="tab" onclick="switchView('overblik')">📌 Overblik</button>
+    <button class="tab" onclick="switchView('loensomhed')">Lønsomhed</button>
+  </div>
+  <div class="day-chip" id="day-chip" onclick="switchView('loensomhed')" title="Fakturerbare timer – klik for Lønsomhed">
+    <div class="dc-item"><span class="dc-lbl">I dag</span><span class="dc-val" id="dc-day">–</span><div class="dc-bar"><i id="dc-day-bar" style="width:0"></i></div></div>
+    <div class="dc-item"><span class="dc-lbl">Denne uge</span><span class="dc-val" id="dc-week">–</span><div class="dc-bar"><i id="dc-week-bar" style="width:0"></i></div></div>
   </div>
   <div class="header-right">
     <div id="save-indicator"></div>
@@ -550,6 +607,38 @@ header {
     <div style="font-size:14px;font-weight:700">Arkiverede projekter</div>
   </div>
   <div class="archive-grid" id="archive-grid"></div>
+</div>
+
+
+<!-- LØNSOMHED VIEW -->
+<div id="view-loensomhed">
+  <div class="ls-wrap">
+    <div class="ls-panel">
+      <div class="ls-head">
+        <div><div class="ls-title">Fakturerbare timer</div><div class="ls-sub">Timer logget på projekter med et beløb, inden for budgettet (beløb ÷ timepris + ekstra timer). Timer over budget og timer på tilbud uden pris tæller ikke som fakturerbare.</div></div>
+        <label class="ls-sub">Mål pr. arbejdsdag <input class="ls-goalin" id="ls-goal" type="number" step="0.5" min="0" onchange="setDayGoal(this.value)"> t</label>
+      </div>
+      <div class="ls-kpis" id="ls-kpis" style="margin-top:14px"></div>
+    </div>
+    <div class="ls-panel">
+      <div class="ls-head"><div class="ls-title">De sidste 4 uger, dag for dag</div><div class="ls-sub" id="ls-chart-sub"></div></div>
+      <div class="ls-chart" id="ls-chart"></div>
+      <div class="ls-xlab" id="ls-xlab"></div>
+      <div class="ls-legend"><span style="--c:var(--blue)">Fakturerbart</span><span style="--c:var(--orange)">I dag</span><span style="--c:var(--red)">Over budget (ikke betalt)</span><span style="--c:var(--text3)">Tilbud / uden pris</span><span style="--c:var(--green)">Dagsmål</span></div>
+    </div>
+    <div class="ls-row2">
+      <div class="ls-panel">
+        <div class="ls-head"><div class="ls-title">Indtjening pr. time på projekterne</div><div class="ls-sub">Aktive og projekter med timer de sidste 90 dage</div></div>
+        <div style="overflow-x:auto"><table class="ls-table"><thead><tr><th>Opgave</th><th>Kunde</th><th class="r">Beløb</th><th class="r">Budget</th><th class="r">Logget</th><th class="r">Kr. pr. time</th><th></th></tr></thead><tbody id="ls-proj"></tbody></table></div>
+      </div>
+      <div class="ls-panel">
+        <div class="ls-title">Økonomi</div>
+        <p style="font-size:13px;color:var(--text2);margin-top:8px;line-height:1.5">Reelt resultat, timepris, kontorfællesskab og ubetalte fakturaer fra Billy og Danløn. Opdateres hver mandag morgen.</p>
+        <a class="ls-link" href="https://claude.ai/artifact/76wnJuvSduFy2CDwaNgJ7N" target="_blank" rel="noopener">Åbn Barker Lønsomhed ↗</a>
+        <p style="font-size:11px;color:var(--text3);margin-top:12px;line-height:1.5">Tip: Timer kommer automatisk fra kalenderen, når begivenheden starter med opgavenummer, fx "26_019 Opbyg 3D model".</p>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- OVERBLIK VIEW -->
@@ -1864,12 +1953,14 @@ async function testBilly(){
 // VIEW SWITCH
 // ═══════════════════════════════
 function switchView(v){
-  ['board','timeline','archive'].forEach(x=>{
-    document.getElementById('view-'+x).classList.toggle('active',x===v);
-    document.querySelectorAll('.tab')[['board','timeline','archive'].indexOf(x)].classList.toggle('active',x===v);
+  const views=['board','timeline','archive','overblik','loensomhed'];
+  views.forEach((x,i)=>{
+    const el=document.getElementById('view-'+x); if(el) el.classList.toggle('active',x===v);
+    const tab=document.querySelectorAll('.tab')[i]; if(tab) tab.classList.toggle('active',x===v);
   });
   if(v==='timeline') renderTimeline();
   if(v==='archive') renderArchive();
+  if(v==='loensomhed') renderLoensomhed();
 }
 
 // ═══════════════════════════════
@@ -2105,6 +2196,101 @@ function toggleCol(phase){
   localStorage.setItem(key, (!isCollapsed).toString());
   renderBoard();
 }
+
+
+// ═══════════════════════════════
+// LØNSOMHED – fakturerbare timer
+// ═══════════════════════════════
+function lsYmd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function getDayGoal(){ const v=parseFloat(localStorage.getItem('mb3_daygoal')); return isFinite(v)&&v>0?v:5; }
+function setDayGoal(v){ const n=parseFloat(v); if(isFinite(n)&&n>0) localStorage.setItem('mb3_daygoal',String(n)); updateDayChip(); renderLoensomhed(); }
+function lsFmtH(h){ return (Math.round(h*10)/10).toLocaleString('da-DK',{minimumFractionDigits:1,maximumFractionDigits:1}); }
+// Fordel hver projekts loggede timer på dage: inden for budget = fakturerbart, resten = over budget
+function lsDayMap(){
+  const map={};
+  (projects||[]).forEach(p=>{
+    const log=(p.timeLog||[]).filter(e=>e&&e.date&&parseFloat(e.hours)>0).slice().sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
+    if(!log.length) return;
+    const budget=calcAgreedHours(p);
+    let cum=0;
+    log.forEach(e=>{
+      const h=parseFloat(e.hours)||0;
+      let bill=0, over=0, unp=0;
+      if(budget>0){ bill=Math.max(0,Math.min(h,budget-cum)); over=h-bill; }
+      else unp=h; // ingen pris endnu (tilbud o.l.) = ikke fakturerbart
+      cum+=h;
+      const d=map[e.date]||(map[e.date]={bill:0,over:0,unp:0});
+      d.bill+=bill; d.over+=over; d.unp+=unp;
+    });
+  });
+  return map;
+}
+function lsWorkdays(from,to){ let n=0; const d=new Date(from); while(d<=to){ const w=d.getDay(); if(w!==0&&w!==6) n++; d.setDate(d.getDate()+1);} return n; }
+function lsSum(map,from,to){ let b=0,o=0,u=0; const d=new Date(from); while(d<=to){ const x=map[lsYmd(d)]; if(x){b+=x.bill;o+=x.over;u+=x.unp;} d.setDate(d.getDate()+1);} return {b,o,u}; }
+function lsPeriods(){
+  const t=new Date(); t.setHours(0,0,0,0);
+  const wk=new Date(t); wk.setDate(t.getDate()-((t.getDay()+6)%7));
+  const mo=new Date(t.getFullYear(),t.getMonth(),1);
+  const fy=new Date(t.getMonth()>=9?t.getFullYear():t.getFullYear()-1,9,1);
+  return {t,wk,mo,fy};
+}
+function updateDayChip(){
+  const el=document.getElementById('day-chip'); if(!el) return;
+  const map=lsDayMap(), g=getDayGoal(), P=lsPeriods();
+  const day=(map[lsYmd(P.t)]||{bill:0}).bill;
+  const week=lsSum(map,P.wk,P.t).b, wg=g*5;
+  document.getElementById('dc-day').textContent=lsFmtH(day)+' / '+lsFmtH(g)+' t';
+  document.getElementById('dc-week').textContent=lsFmtH(week)+' / '+lsFmtH(wg)+' t';
+  const db=document.getElementById('dc-day-bar'), wb=document.getElementById('dc-week-bar');
+  db.style.width=Math.min(100,day/g*100)+'%'; wb.style.width=Math.min(100,week/wg*100)+'%';
+  const expected=g*Math.min(5,lsWorkdays(P.wk,P.t));
+  db.classList.toggle('low',day<g); wb.classList.toggle('low',week<expected*0.8);
+}
+function renderLoensomhed(){
+  const root=document.getElementById('view-loensomhed'); if(!root) return;
+  const map=lsDayMap(), g=getDayGoal(), P=lsPeriods(), rate=getSettings().hourlyRate;
+  const gi=document.getElementById('ls-goal'); if(gi && document.activeElement!==gi) gi.value=g;
+  const per=[
+    ['I dag',P.t,P.t],['Denne uge',P.wk,P.t],['Denne måned',P.mo,P.t],['Regnskabsår',P.fy,P.t]
+  ].map(([l,f,to])=>{ const s=lsSum(map,f,to); const goal=g*lsWorkdays(f,to); return {l,b:s.b,o:s.o,u:s.u,goal}; });
+  document.getElementById('ls-kpis').innerHTML=per.map(k=>{
+    const pct=k.goal?Math.min(100,k.b/k.goal*100):0;
+    return `<div class="ls-kpi"><div class="k-lbl">${k.l}</div><div class="k-val">${lsFmtH(k.b)} t</div>
+      <div class="k-goal">Mål ${lsFmtH(k.goal)} t${k.o>0.05?` · <span style="color:var(--red)">${lsFmtH(k.o)} t over budget</span>`:''}${k.u>0.05?` · ${lsFmtH(k.u)} t tilbud/uden pris`:''}</div>
+      <div class="k-kr">≈ ${Math.round(k.b*rate).toLocaleString('da-DK')} kr.</div>
+      <div class="dc-bar"><i class="${pct<80?'low':''}" style="width:${pct}%"></i></div></div>`;
+  }).join('');
+  // chart 28 days
+  const days=[]; for(let i=27;i>=0;i--){ const d=new Date(P.t); d.setDate(P.t.getDate()-i); days.push(d); }
+  const vals=days.map(d=>map[lsYmd(d)]||{bill:0,over:0,unp:0});
+  const mx=Math.max(g*1.4,...vals.map(v=>v.bill+v.over+v.unp),1);
+  const todayKey=lsYmd(P.t);
+  document.getElementById('ls-chart').innerHTML=days.map((d,i)=>{
+    const v=vals[i], w=d.getDay(), cls=(lsYmd(d)===todayKey?' today':'')+((w===0||w===6)?' weekend':'');
+    return `<div class="ls-col${cls}" title="${d.toLocaleDateString('da-DK',{weekday:'short',day:'numeric',month:'short'})}: ${lsFmtH(v.bill)} t fakturerbart${v.over>0.05?', '+lsFmtH(v.over)+' t over budget':''}${v.unp>0.05?', '+lsFmtH(v.unp)+' t tilbud/uden pris':''}"><i class="b" style="height:${v.bill/mx*100}%"></i><i class="o" style="height:${v.over/mx*100}%"></i><i class="u" style="height:${v.unp/mx*100}%"></i></div>`;
+  }).join('')+`<div class="ls-goal" style="bottom:${g/mx*100}%"><span>${lsFmtH(g)} t</span></div>`;
+  document.getElementById('ls-xlab').innerHTML=days.map(d=>`<span>${d.getDay()===1||lsYmd(d)===todayKey?d.getDate()+'/'+(d.getMonth()+1):''}</span>`).join('');
+  const wd=days.filter(d=>d.getDay()!==0&&d.getDay()!==6);
+  const avg=wd.reduce((a,d)=>a+((map[lsYmd(d)]||{bill:0}).bill),0)/Math.max(1,wd.length);
+  document.getElementById('ls-chart-sub').textContent=`Gennemsnit ${lsFmtH(avg)} t pr. arbejdsdag · ${lsFmtH(avg*5)} t pr. uge`;
+  // projects
+  const since=new Date(P.t); since.setDate(since.getDate()-90); const sinceK=lsYmd(since);
+  const rows=(projects||[]).filter(p=>!p.archived||(p.timeLog||[]).some(e=>e.date>=sinceK)).map(p=>{
+    const logged=totalLogged(p), budget=calcAgreedHours(p), amt=parseFloat(p.amount)||0;
+    const perH=logged>0&&amt>0?amt/logged:null;
+    return {p,logged,budget,amt,perH};
+  }).filter(r=>r.logged>0||r.amt>0).sort((a,b)=>(a.perH??1e9)-(b.perH??1e9));
+  document.getElementById('ls-proj').innerHTML=rows.map(r=>{
+    let pill='';
+    if(r.perH!==null){ const c=r.perH>=rate?'good':r.perH>=rate*0.8?'warn':'bad'; pill=`<span class="ls-pill ${c}">${r.perH>=rate?'OK':r.logged>r.budget?'Over budget':'Under timepris'}</span>`; }
+    else if(r.amt>0) pill='<span class="ls-pill warn">Ingen timer</span>';
+    return `<tr><td>${r.p.taskId||''}</td><td>${r.p.client||''}</td><td class="r">${r.amt?Math.round(r.amt).toLocaleString('da-DK'):'–'}</td><td class="r">${r.budget?lsFmtH(r.budget):'–'}</td><td class="r">${lsFmtH(r.logged)}</td><td class="r">${r.perH!==null?Math.round(r.perH).toLocaleString('da-DK'):'–'}</td><td>${pill}</td></tr>`;
+  }).join('')||'<tr><td colspan="7" style="color:var(--text3)">Ingen projekter med beløb eller timer endnu</td></tr>';
+}
+// Opdatér timetælleren hver gang tavlen tegnes, og hvert 5. minut
+const _lsRenderBoard=renderBoard;
+renderBoard=function(){ _lsRenderBoard.apply(this,arguments); try{ updateDayChip(); if(document.getElementById('view-loensomhed')?.classList.contains('active')) renderLoensomhed(); }catch(e){ console.warn(e); } };
+setInterval(()=>{ try{ updateDayChip(); }catch(e){} },300000);
 
 async function init(){
   checkOAuthReturn();
