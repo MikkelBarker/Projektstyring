@@ -305,6 +305,71 @@ header {
 @media (max-width:1100px){ .day-chip .dc-item:nth-child(2){ display:none; } }
 @media (max-width:760px){ .day-chip{ display:none; } }
 
+
+.tabs .tab { white-space:nowrap; }
+@media (max-width:1300px){ .tabs .tab { padding-left:12px; padding-right:12px; } }
+/* ── MÅL (motivation board) ── */
+#view-maal { flex:1; overflow:hidden; display:none; flex-direction:column; }
+#view-maal.active { display:flex; }
+.mg-wrap { padding:18px 24px 24px; overflow-y:auto; height:100%; display:flex; flex-direction:column; gap:16px; }
+.mg-quote { position:relative; background:linear-gradient(120deg,#1a2332 0%,#2b3a52 100%); color:#fff; border-radius:var(--r); padding:22px 26px 20px; box-shadow:var(--shadow); overflow:hidden; }
+.mg-quote::after { content:"\201C"; position:absolute; right:22px; top:-18px; font-size:150px; font-family:Georgia,serif; color:rgba(255,255,255,.08); line-height:1; }
+.mg-quote .q { font-size:22px; line-height:1.4; font-weight:500; max-width:70ch; text-wrap:balance; }
+.mg-quote .a { margin-top:8px; font-size:13px; color:#c9d4e3; letter-spacing:.02em; }
+.mg-quote .row { display:flex; gap:10px; align-items:center; margin-top:14px; flex-wrap:wrap; }
+.mg-quote button { background:rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.2); border-radius:6px; padding:6px 12px; font:inherit; font-size:13px; cursor:pointer; }
+.mg-quote button:hover { background:rgba(255,255,255,.22); }
+.mg-stats { margin-left:auto; display:flex; gap:18px; font-size:13px; color:#c9d4e3; }
+.mg-stats b { color:#fff; font-family:var(--mono); font-size:18px; margin-right:4px; }
+.mg-goals { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
+.mg-goal { background:var(--white); border:1px solid var(--border); border-radius:var(--r); padding:14px 16px; box-shadow:var(--shadow); border-top:5px solid var(--gc); cursor:pointer; position:relative; }
+.mg-goal:hover { box-shadow:var(--shadow-hover); }
+.mg-goal.sel { outline:2px solid var(--gc); }
+.mg-goal .t { font-weight:700; font-size:16px; }
+.mg-goal .w { font-size:12px; color:var(--text2); margin-top:4px; line-height:1.4; }
+.mg-goal .m { display:flex; justify-content:space-between; font-size:12px; color:var(--text3); margin-top:10px; font-family:var(--mono); }
+.mg-goal .bar { height:8px; background:var(--bg2); border-radius:4px; overflow:hidden; margin-top:6px; }
+.mg-goal .bar i { display:block; height:100%; background:var(--gc); border-radius:4px; transition:width .4s; }
+.mg-goal .ed { position:absolute; top:8px; right:8px; border:0; background:transparent; color:var(--text3); cursor:pointer; font-size:14px; }
+.mg-addgoal { border:2px dashed var(--border2); border-radius:var(--r); display:flex; align-items:center; justify-content:center; color:var(--text3); font-size:14px; cursor:pointer; min-height:110px; background:transparent; font-family:var(--font); }
+.mg-addgoal:hover { border-color:var(--orange); color:var(--orange); }
+.mg-board { display:grid; grid-template-columns:repeat(4,minmax(240px,1fr)); gap:12px; align-items:start; min-height:300px; }
+@media (max-width:1100px){ .mg-board{ grid-template-columns:repeat(2,minmax(220px,1fr)); } }
+.mg-col { background:var(--bg2); border-radius:var(--r); padding:10px; min-height:200px; transition:background .15s; }
+.mg-col.over { background:#dbe6f2; }
+.mg-colh { display:flex; align-items:center; justify-content:space-between; padding:4px 4px 10px; border-bottom:3px solid var(--cc); margin-bottom:10px; }
+.mg-colh .n { font-weight:700; font-size:15px; }
+.mg-colh .s { font-size:11px; color:var(--text3); }
+.mg-colh .c { font-family:var(--mono); font-size:12px; background:var(--white); border-radius:10px; padding:1px 8px; }
+.mg-warn { font-size:12px; color:var(--amber); background:var(--amber-bg); border-radius:6px; padding:6px 8px; margin-bottom:8px; }
+.mg-card { background:var(--white); border-radius:8px; padding:10px 12px; margin-bottom:8px; box-shadow:var(--shadow); cursor:grab; border-left:4px solid var(--gc); }
+.mg-card:hover { box-shadow:var(--shadow-hover); }
+.mg-card.dragging { opacity:.4; }
+.mg-card .t { font-size:14px; font-weight:500; line-height:1.35; }
+.mg-card .ge { font-size:12px; color:var(--green); margin-top:6px; line-height:1.35; }
+.mg-card .ge.miss { color:var(--amber); }
+.mg-card .meta { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; font-size:11px; color:var(--text3); font-family:var(--mono); }
+.mg-card .chip { background:var(--bg2); border-radius:4px; padding:1px 6px; }
+.mg-card .chip.late { background:var(--red-bg); color:var(--red); }
+.mg-col.done .mg-card { opacity:.85; }
+.mg-col.done .mg-card .t { text-decoration:none; }
+.mg-add { width:100%; border:0; background:transparent; color:var(--text3); text-align:left; padding:6px 4px; font:inherit; font-size:13px; cursor:pointer; border-radius:6px; }
+.mg-add:hover { background:rgba(255,255,255,.6); color:var(--text); }
+.mg-field { display:grid; gap:4px; margin-bottom:12px; }
+.mg-field label { font-size:12px; color:var(--text3); text-transform:uppercase; letter-spacing:.05em; }
+.mg-field input, .mg-field textarea, .mg-field select { font:inherit; font-size:15px; padding:8px 10px; border:1px solid var(--border2); border-radius:6px; width:100%; background:var(--white); color:var(--text); }
+.mg-field textarea { min-height:60px; resize:vertical; }
+.mg-hint { font-size:12px; color:var(--text3); }
+.mg-checks { display:grid; gap:4px; }
+.mg-checks label { display:flex; gap:8px; align-items:center; font-size:14px; text-transform:none; letter-spacing:0; color:var(--text); }
+.mg-colors { display:flex; gap:6px; }
+.mg-colors button { width:26px; height:26px; border-radius:50%; border:2px solid transparent; cursor:pointer; }
+.mg-colors button.on { border-color:var(--text); }
+.mg-confetti { position:fixed; inset:0; pointer-events:none; z-index:300; overflow:hidden; }
+.mg-confetti i { position:absolute; width:8px; height:14px; top:-20px; animation:mgfall 1.6s ease-in forwards; }
+@keyframes mgfall { to { transform:translateY(110vh) rotate(720deg); opacity:.7; } }
+@media (prefers-reduced-motion:reduce){ .mg-confetti{ display:none; } }
+
 /* overblik */
 #view-overblik { flex: 1; overflow: hidden; display: none; flex-direction: column; }
 .ob-sum { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:16px; }
@@ -594,6 +659,7 @@ header {
     <button class="tab" onclick="switchView('archive')">Arkiv</button>
     <button class="tab" onclick="switchView('overblik')">📌 Overblik</button>
     <button class="tab" onclick="switchView('loensomhed')">Lønsomhed</button>
+    <button class="tab" onclick="switchView('maal')">Mål</button>
   </div>
   <div class="day-chip" id="day-chip" onclick="switchView('loensomhed')" title="Fakturerbare timer – klik for Lønsomhed">
     <div class="dc-item"><span class="dc-lbl">I dag</span><span class="dc-val" id="dc-day">–</span><div class="dc-bar"><i id="dc-day-bar" style="width:0"></i></div></div>
@@ -657,6 +723,29 @@ header {
         <p style="font-size:11px;color:var(--text3);margin-top:12px;line-height:1.5">Tip: Timer kommer automatisk fra kalenderen, når begivenheden starter med opgavenummer, fx "26_019 Opbyg 3D model".</p>
       </div>
     </div>
+  </div>
+</div>
+
+
+<!-- MÅL VIEW -->
+<div id="view-maal">
+  <div class="mg-wrap">
+    <div class="mg-quote">
+      <div class="q" id="mg-q"></div>
+      <div class="a" id="mg-a"></div>
+      <div class="row">
+        <button type="button" onclick="mgNextQuote()">Ny tanke</button>
+        <div class="mg-stats" id="mg-stats"></div>
+      </div>
+    </div>
+    <div class="mg-goals" id="mg-goals"></div>
+    <div class="mg-board" id="mg-board"></div>
+  </div>
+</div>
+<div class="overlay" id="mg-overlay" onclick="if(event.target===this)mgClose()">
+  <div class="modal" style="max-width:560px">
+    <button class="modal-close" onclick="mgClose()">✕</button>
+    <div id="mg-form"></div>
   </div>
 </div>
 
@@ -1980,7 +2069,7 @@ async function testBilly(){
 // VIEW SWITCH
 // ═══════════════════════════════
 function switchView(v){
-  const views=['board','timeline','archive','overblik','loensomhed'];
+  const views=['board','timeline','archive','overblik','loensomhed','maal'];
   views.forEach((x,i)=>{
     const el=document.getElementById('view-'+x); if(el) el.classList.toggle('active',x===v);
     const tab=document.querySelectorAll('.tab')[i]; if(tab) tab.classList.toggle('active',x===v);
@@ -1989,6 +2078,7 @@ function switchView(v){
   if(v==='archive') renderArchive();
   if(v==='loensomhed') renderLoensomhed();
   if(v==='overblik') renderOverblik();
+  if(v==='maal') mgOpen();
 }
 
 // ═══════════════════════════════
@@ -2226,6 +2316,196 @@ function toggleCol(phase){
 }
 
 
+
+
+// ═══════════════════════════════
+// MÅL – motivation og delmål (gemmes i fanen "Maal" i Google-arket)
+// ═══════════════════════════════
+const MG_SHEET='Maal';
+const MG_COLS=[
+  {id:'ide',n:'Idéer',s:'Alt må komme på listen',c:'#8a9ab0'},
+  {id:'next',n:'Næste',s:'Klar til at gå i gang',c:'var(--blue)'},
+  {id:'doing',n:'I gang',s:'Højst 2 ad gangen',c:'var(--orange)'},
+  {id:'done',n:'Udgivet – godt nok!',s:'Færdigt slår perfekt',c:'var(--green)'}
+];
+const MG_COLORS=['#e8590c','#2563a8','#1a7a4a','#7c3aed','#db2777','#0891b2','#b45309'];
+const MG_QUOTES=[
+  ['Det perfekte er det godes fjende.','Voltaire'],
+  ['Et kunstværk bliver aldrig færdigt. Det bliver forladt.','Tilskrevet Leonardo da Vinci'],
+  ['Mens vi udsætter, løber livet fra os.','Seneca'],
+  ['Spild ikke mere tid på at diskutere, hvordan et godt menneske skal være. Vær det.','Marcus Aurelius, frit oversat'],
+  ['Hvad andre synes om din video, er deres opgave. At lave den, er din.','Frit efter Adler og "Modet til at være upopulær"'],
+  ['Du behøver ikke andres anerkendelse for at gøre noget værdifuldt. Gør det for dem, det kan hjælpe.','Frit efter Adler'],
+  ['Livet er en række nu-øjeblikke, ikke en rejse mod et mål. Dagens optagelse er hele pointen.','Frit efter "Modet til at være upopulær"'],
+  ['Mod til at være ufuldkommen er mod til at leve.','Frit efter Alfred Adlers skole'],
+  ['Fortiden bestemmer ikke, hvad du gør i dag. Du kan vælge anderledes nu.','Frit efter Adler'],
+  ['Det, vi ikke vil se i os selv, styrer os. Se perfektionisten i øjnene, og den mister magt.','Frit efter C.G. Jung'],
+  ['Vi kan ikke forandre noget, før vi har accepteret det, som det er.','Frit efter C.G. Jung'],
+  ['Musik spilles ikke for at nå sidste tone. Dit arbejde laves heller ikke kun for at blive færdigt.','Frit efter Alan Watts'],
+  ['Du lærer ikke at danse ved at stå stille og planlægge trinene.','Frit efter Alan Watts'],
+  ['Hvis du ikke er lidt flov over version 1, udgav du den for sent.','Frit efter Reid Hoffman'],
+  ['Ingen har nogensinde lært noget af en video, der ligger på din harddisk.','Til Mikkel'],
+  ['Dit publikum vil have din viden. De har ikke bedt om en perfekt video.','Til Mikkel'],
+  ['80 % udgivet hjælper flere end 100 % i skuffen.','Til Mikkel'],
+  ['Én take. Klip det værste ud. Udgiv.','Til Mikkel'],
+  ['Du har fløjet fly og målt landskaber op med centimeters præcision. En video må gerne være mindre præcis.','Til Mikkel'],
+  ['Version 2 kan kun laves, når version 1 er ude.','Til Mikkel'],
+  ['Spørg ikke "er den perfekt?" Spørg "kan den hjælpe nogen i dag?"','Til Mikkel']
+];
+let mg=null, mgSel=null, mgQi=-1, mgDrag=null;
+function mgId(){ return 'g'+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+function mgEsc(t){ return String(t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function mgSeed(){
+  const a=mgId(), b=mgId();
+  return {goals:[
+    {id:a,title:'Lancér online-kursus: verificeret camera match',why:'Del min viden, få en indtægt der ikke kræver timer, og bliv kendt for metoden.',color:'#7c3aed',deadline:''},
+    {id:b,title:'Sunde forretninger',why:'20 fakturerbare timer om ugen og penge ind til tiden.',color:'#1a7a4a',deadline:''}
+  ],cards:[
+    {id:mgId(),goalId:a,col:'ide',title:'Gratis teaser-video på YouTube/LinkedIn',goodEnough:'3–5 minutter, optaget med telefon, ingen intro-grafik',due:'',checks:[]},
+    {id:mgId(),goalId:a,col:'ide',title:'Kursus nr. 2: skyggeanalyse',goodEnough:'',due:'',checks:[]},
+    {id:mgId(),goalId:a,col:'next',title:'Vælg kursusplatform',goodEnough:'Sammenlign 3 platforme i 30 minutter, og vælg én',due:'',checks:[]},
+    {id:mgId(),goalId:a,col:'next',title:'Skriv modul-oversigt',goodEnough:'Én side med 5–8 moduler, stikord er nok',due:'',checks:[]},
+    {id:mgId(),goalId:a,col:'doing',title:'Optag modul 1: Hvad er verificeret camera match?',goodEnough:'Én sammenhængende optagelse, tydelig lyd, kun simple klip',due:'',checks:[{t:'Stikord skrevet',d:false},{t:'Optaget',d:false},{t:'Klippet',d:false}]},
+    {id:mgId(),goalId:b,col:'next',title:'Ryk for de 5 ældste ubetalte fakturaer',goodEnough:'Én kort mail pr. kunde',due:'',checks:[]},
+    {id:mgId(),goalId:b,col:'next',title:'Sæt beløb på opgaver, der mangler det',goodEnough:'Alle kort i Opgave har et beløb',due:'',checks:[]}
+  ]};
+}
+async function mgLoad(){
+  try{ const c=JSON.parse(localStorage.getItem('mb3_maal')||'null'); if(c) mg=c; }catch(e){}
+  if(googleToken){
+    try{
+      const d=await sheetsGet(`${MG_SHEET}!A1`);
+      if(d.error){ await mgEnsureSheet(); }
+      else if(d.values&&d.values[0]&&d.values[0][0]){ mg=JSON.parse(d.values[0][0]); }
+    }catch(e){ console.warn('Mål: kunne ikke hente',e); }
+  }
+  if(!mg){ mg=mgSeed(); mgSave(); }
+}
+async function mgEnsureSheet(){
+  const s=getSettings();
+  await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${s.sheetId}:batchUpdate`,{method:'POST',headers:{Authorization:`Bearer ${googleToken}`,'Content-Type':'application/json'},body:JSON.stringify({requests:[{addSheet:{properties:{title:MG_SHEET}}}]})});
+}
+let mgSaveT=null;
+function mgSave(){
+  try{ localStorage.setItem('mb3_maal',JSON.stringify(mg)); }catch(e){}
+  clearTimeout(mgSaveT);
+  mgSaveT=setTimeout(async()=>{
+    if(!googleToken) return;
+    try{ const r=await sheetsUpdate(`${MG_SHEET}!A1`,[[JSON.stringify(mg)]]); if(r&&r.error){ await mgEnsureSheet(); await sheetsUpdate(`${MG_SHEET}!A1`,[[JSON.stringify(mg)]]); } }
+    catch(e){ toast('Mål kunne ikke gemmes i Google-arket','error'); }
+  },600);
+}
+async function mgOpen(){
+  if(!mg) await mgLoad();
+  mgNextQuote(); mgRender();
+}
+function mgNextQuote(){
+  let i; do{ i=Math.floor(Math.random()*MG_QUOTES.length); }while(i===mgQi&&MG_QUOTES.length>1);
+  mgQi=i; document.getElementById('mg-q').textContent=MG_QUOTES[i][0]; document.getElementById('mg-a').textContent='— '+MG_QUOTES[i][1];
+}
+function mgGoal(id){ return mg.goals.find(g=>g.id===id)||{color:'#8a9ab0',title:'Uden mål'}; }
+function mgRender(){
+  const today=lsYmd(new Date());
+  const done=mg.cards.filter(c=>c.col==='done');
+  const month=today.slice(0,7);
+  document.getElementById('mg-stats').innerHTML=`<span><b>${done.length}</b>udgivet i alt</span><span><b>${done.filter(c=>(c.doneAt||'').startsWith(month)).length}</b>denne måned</span>`;
+  document.getElementById('mg-goals').innerHTML=mg.goals.map(g=>{
+    const cs=mg.cards.filter(c=>c.goalId===g.id), d=cs.filter(c=>c.col==='done').length, pct=cs.length?Math.round(d/cs.length*100):0;
+    return `<div class="mg-goal${mgSel===g.id?' sel':''}" style="--gc:${g.color}" onclick="mgSelect('${g.id}')">
+      <button class="ed" title="Redigér mål" onclick="event.stopPropagation();mgEditGoal('${g.id}')">✎</button>
+      <div class="t">${mgEsc(g.title)}</div>${g.why?`<div class="w">${mgEsc(g.why)}</div>`:''}
+      <div class="m"><span>${d} af ${cs.length} delmål</span><span>${g.deadline?formatDate(g.deadline):''}</span></div>
+      <div class="bar"><i style="width:${pct}%"></i></div></div>`;
+  }).join('')+`<button class="mg-addgoal" onclick="mgEditGoal()">+ Nyt mål</button>`;
+  const vis=mg.cards.filter(c=>!mgSel||c.goalId===mgSel);
+  document.getElementById('mg-board').innerHTML=MG_COLS.map(col=>{
+    const cs=vis.filter(c=>c.col===col.id);
+    const warn=col.id==='doing'&&cs.length>2?'<div class="mg-warn">Mere end 2 i gang. Gør én færdig, før du starter en ny.</div>':'';
+    return `<div class="mg-col${col.id==='done'?' done':''}" data-col="${col.id}" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="mgDrop(event,'${col.id}')">
+      <div class="mg-colh" style="--cc:${col.c}"><div><div class="n">${col.n}</div><div class="s">${col.s}</div></div><span class="c">${cs.length}</span></div>
+      ${warn}
+      ${cs.map(c=>{const g=mgGoal(c.goalId), ch=c.checks||[], cd=ch.filter(x=>x.d).length, late=c.due&&c.due<today&&c.col!=='done';
+        return `<div class="mg-card" draggable="true" style="--gc:${g.color}" ondragstart="mgDrag='${c.id}';this.classList.add('dragging')" ondragend="this.classList.remove('dragging')" onclick="mgEditCard('${c.id}')">
+          <div class="t">${mgEsc(c.title)}</div>
+          ${c.goodEnough?`<div class="ge">✓ Godt nok når: ${mgEsc(c.goodEnough)}</div>`:(col.id!=='ide'&&col.id!=='done'?'<div class="ge miss">Hvornår er den godt nok? Skriv det på kortet.</div>':'')}
+          <div class="meta">${ch.length?`<span class="chip">${cd}/${ch.length}</span>`:''}${c.due?`<span class="chip${late?' late':''}">${formatDate(c.due)}</span>`:''}${col.id==='done'&&c.doneAt?`<span class="chip">Udgivet ${formatDate(c.doneAt)}</span>`:''}<span>${mgEsc(g.title).slice(0,28)}</span></div>
+        </div>`;}).join('')}
+      <button class="mg-add" onclick="mgEditCard(null,'${col.id}')">+ Tilføj delmål</button>
+    </div>`;
+  }).join('');
+}
+function mgSelect(id){ mgSel=mgSel===id?null:id; mgRender(); }
+function mgDrop(e,col){
+  e.preventDefault(); document.querySelectorAll('.mg-col').forEach(x=>x.classList.remove('over'));
+  const c=mg.cards.find(x=>x.id===mgDrag); if(!c||c.col===col) return;
+  mgMove(c,col);
+}
+function mgMove(c,col){
+  const was=c.col; c.col=col;
+  if(col==='done'&&was!=='done'){ c.doneAt=lsYmd(new Date()); mgCelebrate(); }
+  if(col!=='done') delete c.doneAt;
+  mgSave(); mgRender();
+}
+function mgCelebrate(){
+  const msgs=['Udgivet! Godt nok er godt nok.','Færdig slår perfekt. Næste!','Det er ude i verden nu. Det er det, der tæller.','Endnu en ting, der ikke ligger i skuffen.'];
+  toast(msgs[Math.floor(Math.random()*msgs.length)],'success');
+  const box=document.createElement('div'); box.className='mg-confetti';
+  for(let i=0;i<60;i++){ const p=document.createElement('i'); p.style.left=Math.random()*100+'vw'; p.style.background=MG_COLORS[i%MG_COLORS.length]; p.style.animationDelay=(Math.random()*.4)+'s'; box.appendChild(p); }
+  document.body.appendChild(box); setTimeout(()=>box.remove(),2200);
+}
+function mgClose(){ document.getElementById('mg-overlay').classList.remove('open'); }
+function mgEditGoal(id){
+  const g=id?mg.goals.find(x=>x.id===id):{id:null,title:'',why:'',color:MG_COLORS[mg.goals.length%MG_COLORS.length],deadline:''};
+  document.getElementById('mg-form').innerHTML=`<div style="font-size:20px;font-weight:700;margin-bottom:16px">${id?'Redigér mål':'Nyt mål'}</div>
+    <div class="mg-field"><label>Mål</label><input id="mgg-title" value="${mgEsc(g.title)}" placeholder="Fx: Lancér mit første kursus"></div>
+    <div class="mg-field"><label>Hvorfor er det vigtigt for dig?</label><textarea id="mgg-why" placeholder="Det, du skal huske på, når det bliver svært">${mgEsc(g.why)}</textarea></div>
+    <div class="mg-field"><label>Deadline (valgfri)</label><input type="date" id="mgg-dl" value="${g.deadline||''}"></div>
+    <div class="mg-field"><label>Farve</label><div class="mg-colors">${MG_COLORS.map(c=>`<button type="button" class="${c===g.color?'on':''}" style="background:${c}" onclick="document.querySelectorAll('.mg-colors button').forEach(b=>b.classList.remove('on'));this.classList.add('on');this.parentNode.dataset.c='${c}'"></button>`).join('')}</div></div>
+    <div style="display:flex;gap:8px;justify-content:space-between;margin-top:8px">
+      ${id?`<button class="btn btn-ghost btn-sm" onclick="mgDeleteGoal('${id}')">Slet mål</button>`:'<span></span>'}
+      <button class="btn btn-primary btn-sm" onclick="mgSaveGoal(${id?`'${id}'`:'null'})">Gem</button></div>`;
+  document.querySelector('.mg-colors').dataset.c=g.color;
+  document.getElementById('mg-overlay').classList.add('open');
+}
+function mgSaveGoal(id){
+  const t=document.getElementById('mgg-title').value.trim(); if(!t){toast('Giv målet et navn','error');return;}
+  const g=id?mg.goals.find(x=>x.id===id):{id:mgId()};
+  g.title=t; g.why=document.getElementById('mgg-why').value.trim(); g.deadline=document.getElementById('mgg-dl').value; g.color=document.querySelector('.mg-colors').dataset.c;
+  if(!id) mg.goals.push(g);
+  mgSave(); mgClose(); mgRender();
+}
+function mgDeleteGoal(id){
+  const n=mg.cards.filter(c=>c.goalId===id).length;
+  const box=document.getElementById('mg-form');
+  box.insertAdjacentHTML('beforeend',`<div class="mg-warn" style="margin-top:12px">Slet målet${n?` og dets ${n} delmål`:''}? <button class="btn btn-sm" style="margin-left:8px" onclick="mg.goals=mg.goals.filter(g=>g.id!=='${id}');mg.cards=mg.cards.filter(c=>c.goalId!=='${id}');if(mgSel==='${id}')mgSel=null;mgSave();mgClose();mgRender()">Ja, slet</button></div>`);
+}
+function mgEditCard(id,col){
+  const c=id?mg.cards.find(x=>x.id===id):{id:null,goalId:mgSel||(mg.goals[0]||{}).id,col:col||'ide',title:'',goodEnough:'',due:'',checks:[]};
+  document.getElementById('mg-form').innerHTML=`<div style="font-size:20px;font-weight:700;margin-bottom:16px">${id?'Delmål':'Nyt delmål'}</div>
+    <div class="mg-field"><label>Delmål</label><input id="mgc-title" value="${mgEsc(c.title)}" placeholder="Fx: Optag modul 2"></div>
+    <div class="mg-field"><label>Godt nok når …</label><textarea id="mgc-ge" placeholder="Beslut det NU, før du går i gang. Fx: én take, tydelig lyd, ingen grafik">${mgEsc(c.goodEnough)}</textarea><span class="mg-hint">Når kriteriet er opfyldt, er den færdig. Også selvom du kunne gøre den bedre.</span></div>
+    <div class="mg-field"><label>Hører til mål</label><select id="mgc-goal">${mg.goals.map(g=>`<option value="${g.id}"${g.id===c.goalId?' selected':''}>${mgEsc(g.title)}</option>`).join('')}</select></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="mg-field"><label>Kolonne</label><select id="mgc-col">${MG_COLS.map(k=>`<option value="${k.id}"${k.id===c.col?' selected':''}>${k.n}</option>`).join('')}</select></div>
+      <div class="mg-field"><label>Dato (valgfri)</label><input type="date" id="mgc-due" value="${c.due||''}"></div></div>
+    <div class="mg-field"><label>Små trin</label><div class="mg-checks" id="mgc-checks">${(c.checks||[]).map((x,i)=>`<label><input type="checkbox" data-i="${i}" ${x.d?'checked':''}> <span contenteditable="true">${mgEsc(x.t)}</span></label>`).join('')}</div>
+      <input id="mgc-newcheck" placeholder="+ Tilføj trin og tryk Enter" onkeydown="if(event.key==='Enter'){event.preventDefault();const v=this.value.trim();if(v){document.getElementById('mgc-checks').insertAdjacentHTML('beforeend','<label><input type=checkbox> <span contenteditable=true>'+mgEsc(v)+'</span></label>');this.value='';}}"></div>
+    <div style="display:flex;gap:8px;justify-content:space-between;margin-top:8px">
+      ${id?`<button class="btn btn-ghost btn-sm" onclick="mg.cards=mg.cards.filter(x=>x.id!=='${id}');mgSave();mgClose();mgRender()">Slet</button>`:'<span></span>'}
+      <span style="display:flex;gap:8px">${id&&c.col!=='done'?`<button class="btn btn-sm" onclick="mgSaveCard('${id}',true)">Udgivet ✓</button>`:''}<button class="btn btn-primary btn-sm" onclick="mgSaveCard(${id?`'${id}'`:'null'})">Gem</button></span></div>`;
+  document.getElementById('mg-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('mgc-title').focus(),50);
+}
+function mgSaveCard(id,markDone){
+  const t=document.getElementById('mgc-title').value.trim(); if(!t){toast('Skriv hvad delmålet er','error');return;}
+  if(!mg.goals.length){ toast('Opret først et mål','error'); return; }
+  const c=id?mg.cards.find(x=>x.id===id):{id:mgId()};
+  c.title=t; c.goodEnough=document.getElementById('mgc-ge').value.trim(); c.goalId=document.getElementById('mgc-goal').value; c.due=document.getElementById('mgc-due').value;
+  c.checks=[...document.querySelectorAll('#mgc-checks label')].map(l=>({t:l.querySelector('span').textContent.trim(),d:l.querySelector('input').checked})).filter(x=>x.t);
+  const newCol=markDone?'done':document.getElementById('mgc-col').value;
+  if(!id){ c.col=newCol; if(newCol==='done') c.doneAt=lsYmd(new Date()); mg.cards.push(c); mgSave(); mgClose(); mgRender(); if(newCol==='done') mgCelebrate(); return; }
+  mgClose(); mgMove(c,newCol);
+}
 
 // ═══════════════════════════════
 // OVERBLIK – aktive deadlines
