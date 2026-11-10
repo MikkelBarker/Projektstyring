@@ -692,23 +692,15 @@ header {
   </div>
 
   <div id="profit-box" style="margin-bottom:16px">
-    <div class="sec-title">Udlæg, eksterne & lønsomhed</div>
+    <div class="sec-title">Eksterne leverandører & lønsomhed</div>
     <div id="expense-list"></div>
-    <div style="font-size:11px;font-weight:700;color:var(--text3);margin:8px 0 4px">🔒 EKSTERN LEVERANDØR — skjult for kunden, faktureres som dine timer</div>
-    <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
-      <input id="ex-ext-name" placeholder="Hvem / hvad (fx konsulent)" style="flex:2;min-width:140px">
-      <input id="ex-ext-hours" type="number" step="0.25" placeholder="Timer" style="width:70px">
-      <input id="ex-ext-cost" type="number" placeholder="Kost kr/t" style="width:90px">
-      <input id="ex-ext-bill" type="number" placeholder="Fakt. kr/t" title="Tom = din timepris" style="width:90px">
-      <button class="btn btn-sm btn-primary" onclick="addExternal()">+ Ekstern</button>
+    <div class="time-add-row" style="margin:8px 0 6px;grid-template-columns:2fr 1fr 1fr auto">
+      <div class="field"><label>🔒 Leverandør</label><input id="ex-ext-name" placeholder="Fx Fiverr"></div>
+      <div class="field"><label>Beløb (kr)</label><input type="number" id="ex-ext-amount" placeholder="2000" min="0"></div>
+      <div class="field"><label>Beregnes til kr/t</label><input type="number" id="ex-ext-bill" placeholder="Din timepris" min="0"></div>
+      <div class="field"><label>&nbsp;</label><button class="btn btn-sm" onclick="addExternal()">+ Ekstern</button></div>
     </div>
-    <div style="font-size:11px;font-weight:700;color:var(--text3);margin:8px 0 4px">UDLÆG</div>
-    <div style="display:flex;gap:6px;margin-bottom:6px;align-items:center;flex-wrap:wrap">
-      <input id="ex-desc" placeholder="Udlæg (fx kørsel, leje, software)" style="flex:1;min-width:140px" onkeydown="if(event.key==='Enter') addExpense()">
-      <input id="ex-amount" type="number" placeholder="kr" style="width:90px" onkeydown="if(event.key==='Enter') addExpense()">
-      <label style="font-size:11px;white-space:nowrap"><input type="checkbox" id="ex-pass"> Viderefaktureres</label>
-      <button class="btn btn-sm btn-primary" onclick="addExpense()">+ Udlæg</button>
-    </div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Skjult for kunden. Beløbet er din omkostning; timer = beløb ÷ kr/t og tæller som brugte timer på budgettet.</div>
     <div class="time-summary" id="profit-stats" style="margin-top:10px"></div>
     <div id="profit-note" style="font-size:11px;color:var(--text3);margin-top:6px"></div>
   </div>
@@ -876,8 +868,9 @@ function expenseSplit(p){
   const rate=getSettings().hourlyRate;
   (p.expenses||[]).forEach(e=>{
     if(e.type==='ext'){
-      const h=parseFloat(e.hours)||0, c=parseFloat(e.cost)||0, b=parseFloat(e.bill)||rate;
-      r.extHours+=h; r.extCost+=h*c; r.extBilled+=h*b;
+      const b=parseFloat(e.bill)||rate;
+      if(e.mode==='fast'){ const a=parseFloat(e.amount)||0; r.extHours+=a/b; r.extCost+=a; r.extBilled+=a; }
+      else { const h=parseFloat(e.hours)||0, c=parseFloat(e.cost)||0; r.extHours+=h; r.extCost+=h*c; r.extBilled+=h*b; }
     } else if(e.pass){ r.pass+=parseFloat(e.amount)||0; }
     else { r.own+=parseFloat(e.amount)||0; }
   });
@@ -1336,9 +1329,11 @@ function renderExpenses(p){
   const rate=getSettings().hourlyRate;
   el.innerHTML=(p.expenses||[]).map((e,i)=>{
     if(e.type==='ext'){
-      const h=parseFloat(e.hours)||0,c=parseFloat(e.cost)||0,b=parseFloat(e.bill)||rate;
-      return `<div class="time-entry"><div class="time-entry-desc">🔒 ${e.desc} — ${h}t × ${c} kr (faktureres ${b} kr/t)</div>
-        <div class="time-entry-hours">${fmtKr(h*c)}</div><button class="time-entry-del" onclick="deleteExpense(${i})">✕</button></div>`;
+      const b=parseFloat(e.bill)||rate;
+      const a=e.mode==='fast'?(parseFloat(e.amount)||0):(parseFloat(e.hours)||0)*(parseFloat(e.cost)||0);
+      const h=e.mode==='fast'?a/b:(parseFloat(e.hours)||0);
+      return `<div class="time-entry"><div class="time-entry-desc">🔒 ${e.desc} — ${h.toFixed(1)}t à ${b} kr/t</div>
+        <div class="time-entry-hours">${fmtKr(a)}</div><button class="time-entry-del" onclick="deleteExpense(${i})">✕</button></div>`;
     }
     return `<div class="time-entry"><div class="time-entry-desc">${e.desc}${e.pass?' <span style="color:var(--text3)">(viderefaktureres)</span>':''}</div>
       <div class="time-entry-hours">${fmtKr(parseFloat(e.amount)||0)}</div><button class="time-entry-del" onclick="deleteExpense(${i})">✕</button></div>`;
@@ -1358,28 +1353,17 @@ function renderProfit(p){
     <div class="time-stat"><div class="time-stat-val" style="${ph==null?'':(ph>=st.rate?good:bad)}">${ph==null?'—':fmtKr(ph)+'/t'}</div><div class="time-stat-label">Din timeløn (mål ${st.rate})</div></div>
     <div class="time-stat"><div class="time-stat-val" style="${bp==null?'':(bp<=0?good:bad)}">${bp==null?'—':(bp>0?'+':'')+bp.toFixed(0)+'%'}</div><div class="time-stat-label">${bp==null?'Budget':(bp>0?'Over budget':'Under budget')}</div></div>`;
   const n=document.getElementById('profit-note');
-  if(n) n.textContent=(st.x.extHours?`Avance på eksterne: ${fmtKr(st.extMargin)}. `:'')+(st.x.pass?`Viderefaktureret udlæg ${fmtKr(st.x.pass)} påvirker ikke din indtjening. `:'')+'Eksterne og udlæg vises kun her — aldrig i mails til kunden.';
+  if(n) n.textContent=(Math.abs(st.extMargin)>0.5?`Avance på eksterne: ${fmtKr(st.extMargin)}. `:'')+'Eksterne vises kun her — aldrig i mails til kunden.';
 }
 function addExternal(){
   const p=projects.find(x=>x.id===currentId); if(!p) return;
   const desc=document.getElementById('ex-ext-name').value.trim();
-  const hours=parseFloat(document.getElementById('ex-ext-hours').value);
-  const cost=parseFloat(document.getElementById('ex-ext-cost').value);
-  const bill=parseFloat(document.getElementById('ex-ext-bill').value)||'';
-  if(!desc||isNaN(hours)||isNaN(cost)){toast('Udfyld navn, timer og kostpris','error');return;}
+  const amount=parseFloat(document.getElementById('ex-ext-amount').value);
+  const bill=parseFloat(document.getElementById('ex-ext-bill').value)||getSettings().hourlyRate;
+  if(!desc||isNaN(amount)){toast('Udfyld leverandør og beløb','error');return;}
   if(!p.expenses) p.expenses=[];
-  p.expenses.push({type:'ext',desc,hours,cost,bill});
-  ['ex-ext-name','ex-ext-hours','ex-ext-cost','ex-ext-bill'].forEach(id=>document.getElementById(id).value='');
-  renderExpenses(p); dirtyModal();
-}
-function addExpense(){
-  const p=projects.find(x=>x.id===currentId); if(!p) return;
-  const desc=document.getElementById('ex-desc').value.trim();
-  const amount=parseFloat(document.getElementById('ex-amount').value);
-  if(!desc||isNaN(amount)){toast('Udfyld beskrivelse og beløb','error');return;}
-  if(!p.expenses) p.expenses=[];
-  p.expenses.push({type:'udlaeg',desc,amount,pass:document.getElementById('ex-pass').checked});
-  document.getElementById('ex-desc').value='';document.getElementById('ex-amount').value='';document.getElementById('ex-pass').checked=false;
+  p.expenses.push({type:'ext',mode:'fast',desc,amount,bill});
+  ['ex-ext-name','ex-ext-amount','ex-ext-bill'].forEach(id=>document.getElementById(id).value='');
   renderExpenses(p); dirtyModal();
 }
 function deleteExpense(i){
