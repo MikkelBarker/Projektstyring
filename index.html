@@ -691,6 +691,28 @@ header {
     <div id="hours-warning-box" style="display:none" class="hours-warning">⚠ Under 10% af timer tilbage — afklar med kunde om ekstra timer er nødvendige.</div>
   </div>
 
+  <div id="profit-box" style="margin-bottom:16px">
+    <div class="sec-title">Udlæg, eksterne & lønsomhed</div>
+    <div id="expense-list"></div>
+    <div style="font-size:11px;font-weight:700;color:var(--text3);margin:8px 0 4px">🔒 EKSTERN LEVERANDØR — skjult for kunden, faktureres som dine timer</div>
+    <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+      <input id="ex-ext-name" placeholder="Hvem / hvad (fx konsulent)" style="flex:2;min-width:140px">
+      <input id="ex-ext-hours" type="number" step="0.25" placeholder="Timer" style="width:70px">
+      <input id="ex-ext-cost" type="number" placeholder="Kost kr/t" style="width:90px">
+      <input id="ex-ext-bill" type="number" placeholder="Fakt. kr/t" title="Tom = din timepris" style="width:90px">
+      <button class="btn btn-sm btn-primary" onclick="addExternal()">+ Ekstern</button>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:var(--text3);margin:8px 0 4px">UDLÆG</div>
+    <div style="display:flex;gap:6px;margin-bottom:6px;align-items:center;flex-wrap:wrap">
+      <input id="ex-desc" placeholder="Udlæg (fx kørsel, leje, software)" style="flex:1;min-width:140px" onkeydown="if(event.key==='Enter') addExpense()">
+      <input id="ex-amount" type="number" placeholder="kr" style="width:90px" onkeydown="if(event.key==='Enter') addExpense()">
+      <label style="font-size:11px;white-space:nowrap"><input type="checkbox" id="ex-pass"> Viderefaktureres</label>
+      <button class="btn btn-sm btn-primary" onclick="addExpense()">+ Udlæg</button>
+    </div>
+    <div class="time-summary" id="profit-stats" style="margin-top:10px"></div>
+    <div id="profit-note" style="font-size:11px;color:var(--text3);margin-top:6px"></div>
+  </div>
+
   <!-- Checklist -->
   </div><!-- end sec-emails -->
 
@@ -811,9 +833,9 @@ const COL = {
   billyQuoteId:16, billyInvoiceId:17, billyPaid:18, archived:19,
   extraHours:20, calDeadlineId:21,
   coord:22, offset:23, vegetation:24, deliveryFormat:25,
-  camera:26, techNotes:27, emails:28, subboards:29
+  camera:26, techNotes:27, emails:28, subboards:29, expenses:30
 };
-const NUM_COLS = 30;
+const NUM_COLS = 31;
 
 // ═══════════════════════════════
 // STATE
@@ -849,6 +871,34 @@ function calcAgreedHours(p) {
   return fromAmount + extra;
 }
 
+function expenseSplit(p){
+  const r={extHours:0,extCost:0,extBilled:0,own:0,pass:0};
+  const rate=getSettings().hourlyRate;
+  (p.expenses||[]).forEach(e=>{
+    if(e.type==='ext'){
+      const h=parseFloat(e.hours)||0, c=parseFloat(e.cost)||0, b=parseFloat(e.bill)||rate;
+      r.extHours+=h; r.extCost+=h*c; r.extBilled+=h*b;
+    } else if(e.pass){ r.pass+=parseFloat(e.amount)||0; }
+    else { r.own+=parseFloat(e.amount)||0; }
+  });
+  return r;
+}
+function totalExpenses(p){ const x=expenseSplit(p); return x.extCost+x.own; }
+function profitStats(p){
+  const rate=getSettings().hourlyRate;
+  const x=expenseSplit(p);
+  const amount=parseFloat(p.amount)||0;
+  const exp=x.extCost+x.own;           // egne omkostninger (ekstern + ikke-viderefaktureret)
+  const logged=totalLogged(p);          // mine egne timer
+  const used=logged+x.extHours;         // timer brugt på budgettet (inkl. ekstern)
+  const agreed=calcAgreedHours(p);
+  const net=amount-exp;
+  const perHour=logged>0&&amount>0?net/logged:null;
+  const budgetPct=agreed>0&&used>0?((used-agreed)/agreed)*100:null; // + = over budget
+  return {rate,amount,exp,logged,used,agreed,net,perHour,budgetPct,x,extMargin:x.extBilled-x.extCost};
+}
+function fmtKr(n){ return Math.round(n).toLocaleString('da-DK')+' kr'; }
+
 // ═══════════════════════════════
 // SHEETS API
 // ═══════════════════════════════
@@ -856,7 +906,7 @@ function sheetHeaders() {
   return ['id','taskId','client','address','deadline','amount','hoursAgreed',
     'nextAction','nextOwner','weather','notes','phase','checklist','timeLog',
     'color','coverData','billyQuoteId','billyInvoiceId','billyPaid','archived','extraHours','calDeadlineId',
-    'coord','offset','vegetation','deliveryFormat','camera','techNotes','emails','subboards'];
+    'coord','offset','vegetation','deliveryFormat','camera','techNotes','emails','subboards','expenses'];
 }
 
 function projectToRow(p) {
@@ -892,6 +942,7 @@ function projectToRow(p) {
     row[COL.techNotes] = p.techNotes||'';
     row[COL.emails] = JSON.stringify(p.emails||[]);
     row[COL.subboards] = JSON.stringify(p.subboards||[]);
+    row[COL.expenses] = JSON.stringify(p.expenses||[]);
   }
   return row;
 }
@@ -931,6 +982,7 @@ function rowToProject(row) {
     techNotes: row[COL.techNotes]||'',
     emails: (() => { try { return JSON.parse(row[COL.emails]||'[]'); } catch { return []; } })(),
     subboards: (() => { try { return JSON.parse(row[COL.subboards]||'[]'); } catch { return []; } })(),
+    expenses: (() => { try { return JSON.parse(row[COL.expenses]||'[]'); } catch { return []; } })(),
   };
 }
 
@@ -957,7 +1009,7 @@ async function sheetsUpdate(range, values) {
 
 async function sheetsAppend(values) {
   const s = getSettings();
-  const range = `${SHEET_NAME}!A:AD`;
+  const range = `${SHEET_NAME}!A:AE`;
   const r = await fetch(
     `https://sheets.googleapis.com/v4/spreadsheets/${s.sheetId}/values/${encodeURIComponent(range)}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
     { method:'POST', headers:{ Authorization:`Bearer ${googleToken}`, 'Content-Type':'application/json' },
@@ -972,7 +1024,7 @@ async function sheetsAppend(values) {
 async function loadFromSheets() {
   if(!googleToken) { projects=[]; return; }
   try {
-    const d = await sheetsGet(`${SHEET_NAME}!A:AD`);
+    const d = await sheetsGet(`${SHEET_NAME}!A:AE`);
     const rows = d.values || [];
     // skip header row
     const dataRows = rows.length>1 ? rows.slice(1) : [];
@@ -987,10 +1039,10 @@ async function loadFromSheets() {
 async function ensureSheetHeaders() {
   if(!googleToken) return;
   try {
-    const d = await sheetsGet(`${SHEET_NAME}!A1:AD1`);
+    const d = await sheetsGet(`${SHEET_NAME}!A1:AE1`);
     const rows = d.values||[];
-    if(!rows.length || !rows[0].includes('id')) {
-      await sheetsUpdate(`${SHEET_NAME}!A1:AD1`, [sheetHeaders()]);
+    if(!rows.length || !rows[0].includes('id') || !rows[0].includes('expenses')) {
+      await sheetsUpdate(`${SHEET_NAME}!A1:AE1`, [sheetHeaders()]);
     }
   } catch(e) { console.warn('Header check failed',e); }
 }
@@ -1190,6 +1242,7 @@ function openCard(id) {
   const p=projects.find(x=>x.id===id); if(!p) return;
 
   document.getElementById('m-id-display').textContent=p.taskId||'';
+  renderExpenses(p);
   const ab=document.getElementById('archive-btn'); if(ab) ab.textContent=p.archived?'↩ Genåbn':'Arkivér';
   document.getElementById('m-title-display').textContent=`${p.taskId||''} ${p.client||'Ny opgave'}`.trim();
   document.getElementById('m-taskid').value=p.taskId||'';
@@ -1278,7 +1331,64 @@ function toggleCheck(key){
   renderChecklist(p); dirtyModal();
 }
 
+function renderExpenses(p){
+  const el=document.getElementById('expense-list'); if(!el) return;
+  const rate=getSettings().hourlyRate;
+  el.innerHTML=(p.expenses||[]).map((e,i)=>{
+    if(e.type==='ext'){
+      const h=parseFloat(e.hours)||0,c=parseFloat(e.cost)||0,b=parseFloat(e.bill)||rate;
+      return `<div class="time-entry"><div class="time-entry-desc">🔒 ${e.desc} — ${h}t × ${c} kr (faktureres ${b} kr/t)</div>
+        <div class="time-entry-hours">${fmtKr(h*c)}</div><button class="time-entry-del" onclick="deleteExpense(${i})">✕</button></div>`;
+    }
+    return `<div class="time-entry"><div class="time-entry-desc">${e.desc}${e.pass?' <span style="color:var(--text3)">(viderefaktureres)</span>':''}</div>
+      <div class="time-entry-hours">${fmtKr(parseFloat(e.amount)||0)}</div><button class="time-entry-del" onclick="deleteExpense(${i})">✕</button></div>`;
+  }).join('')||'<div style="font-size:11px;color:var(--text3);padding:6px 0">Ingen udlæg eller eksterne endnu</div>';
+  renderProfit(p);
+}
+function renderProfit(p){
+  const el=document.getElementById('profit-stats'); if(!el||!p) return;
+  const amount=parseFloat(document.getElementById('m-amount').value);
+  const q={...p,amount:isNaN(amount)?p.amount:amount,extraHours:document.getElementById('m-extra-hours').value};
+  const st=profitStats(q);
+  const good='color:var(--green,#16a34a)', bad='color:var(--red,#dc2626)';
+  const ph=st.perHour, bp=st.budgetPct;
+  el.innerHTML=`
+    <div class="time-stat"><div class="time-stat-val">${st.used.toFixed(1)}t</div><div class="time-stat-label">Timer brugt${st.x.extHours?` (ekstern ${st.x.extHours.toFixed(1)}t)`:''}</div></div>
+    <div class="time-stat"><div class="time-stat-val">${fmtKr(st.net)}</div><div class="time-stat-label">Efter omkostninger</div></div>
+    <div class="time-stat"><div class="time-stat-val" style="${ph==null?'':(ph>=st.rate?good:bad)}">${ph==null?'—':fmtKr(ph)+'/t'}</div><div class="time-stat-label">Din timeløn (mål ${st.rate})</div></div>
+    <div class="time-stat"><div class="time-stat-val" style="${bp==null?'':(bp<=0?good:bad)}">${bp==null?'—':(bp>0?'+':'')+bp.toFixed(0)+'%'}</div><div class="time-stat-label">${bp==null?'Budget':(bp>0?'Over budget':'Under budget')}</div></div>`;
+  const n=document.getElementById('profit-note');
+  if(n) n.textContent=(st.x.extHours?`Avance på eksterne: ${fmtKr(st.extMargin)}. `:'')+(st.x.pass?`Viderefaktureret udlæg ${fmtKr(st.x.pass)} påvirker ikke din indtjening. `:'')+'Eksterne og udlæg vises kun her — aldrig i mails til kunden.';
+}
+function addExternal(){
+  const p=projects.find(x=>x.id===currentId); if(!p) return;
+  const desc=document.getElementById('ex-ext-name').value.trim();
+  const hours=parseFloat(document.getElementById('ex-ext-hours').value);
+  const cost=parseFloat(document.getElementById('ex-ext-cost').value);
+  const bill=parseFloat(document.getElementById('ex-ext-bill').value)||'';
+  if(!desc||isNaN(hours)||isNaN(cost)){toast('Udfyld navn, timer og kostpris','error');return;}
+  if(!p.expenses) p.expenses=[];
+  p.expenses.push({type:'ext',desc,hours,cost,bill});
+  ['ex-ext-name','ex-ext-hours','ex-ext-cost','ex-ext-bill'].forEach(id=>document.getElementById(id).value='');
+  renderExpenses(p); dirtyModal();
+}
+function addExpense(){
+  const p=projects.find(x=>x.id===currentId); if(!p) return;
+  const desc=document.getElementById('ex-desc').value.trim();
+  const amount=parseFloat(document.getElementById('ex-amount').value);
+  if(!desc||isNaN(amount)){toast('Udfyld beskrivelse og beløb','error');return;}
+  if(!p.expenses) p.expenses=[];
+  p.expenses.push({type:'udlaeg',desc,amount,pass:document.getElementById('ex-pass').checked});
+  document.getElementById('ex-desc').value='';document.getElementById('ex-amount').value='';document.getElementById('ex-pass').checked=false;
+  renderExpenses(p); dirtyModal();
+}
+function deleteExpense(i){
+  const p=projects.find(x=>x.id===currentId); if(!p) return;
+  p.expenses.splice(i,1); renderExpenses(p); dirtyModal();
+}
+
 function updateHoursCalc(){
+  { const pp=projects.find(x=>x.id===currentId); if(pp) renderProfit(pp); }
   const p=projects.find(x=>x.id===currentId);
   const amount=parseFloat(document.getElementById('m-amount').value)||0;
   const extra=parseFloat(document.getElementById('m-extra-hours').value)||0;
@@ -1875,11 +1985,57 @@ async function testBilly(){
 // ═══════════════════════════════
 // VIEW SWITCH
 // ═══════════════════════════════
+function setRate(v){
+  const r=parseFloat(v); if(!r||r<=0) return;
+  localStorage.setItem('mb3_hourly',String(r));
+  renderBoard(); renderOverblik();
+}
+function renderOverblik(){
+  const rate=getSettings().hourlyRate;
+  document.getElementById('overblik-dato').textContent=new Date().toLocaleDateString('da-DK',{day:'numeric',month:'long',year:'numeric'});
+  const withData=projects.filter(p=>(parseFloat(p.amount)||0)>0||totalLogged(p)>0);
+  const rows=withData.map(p=>({p,st:profitStats(p)}));
+  const sum=rows.reduce((a,{st})=>{a.rev+=st.amount;a.exp+=st.exp;a.h+=st.logged;a.used+=st.used;a.agreed+=st.agreed;a.ext+=st.extMargin;return a;},{rev:0,exp:0,h:0,used:0,agreed:0,ext:0});
+  const net=sum.rev-sum.exp;
+  const avg=sum.h>0?net/sum.h:null;
+  const good='color:#16a34a', bad='color:#dc2626';
+  const active=projects.filter(p=>!p.archived&&p.deadline).sort((a,b)=>a.deadline>b.deadline?1:-1);
+  const box=(v,l,st='')=>`<div class="time-stat"><div class="time-stat-val" style="${st}">${v}</div><div class="time-stat-label">${l}</div></div>`;
+  document.getElementById('overblik-content').innerHTML=`
+    <div style="font-size:14px;font-weight:700;margin-bottom:8px">Lønsomhed</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:13px">
+      Timepris (mål): <input type="number" value="${rate}" style="width:90px" onchange="setRate(this.value)"> kr/t
+      <span style="color:var(--text3);font-size:11px">Ændrer aftalte timer på alle opgaver ud fra tilbudsbeløb</span>
+    </div>
+    <div class="time-summary" style="margin-bottom:16px">
+      ${box(fmtKr(sum.rev),'Omsætning')}
+      ${box(fmtKr(sum.exp),'Omkostninger')}
+      ${box(sum.h.toFixed(1)+'t','Mine timer')}
+      ${box(avg==null?'—':fmtKr(avg)+'/t','Reel timeløn',avg==null?'':(avg>=rate?good:bad))}
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:24px">
+      <tr style="text-align:left;color:var(--text3);border-bottom:1px solid var(--border)">
+        <th style="padding:6px">Opgave</th><th>Beløb</th><th>Omkost.</th><th>Timer</th><th>Aftalt</th><th>Timeløn</th><th>Budget</th></tr>
+      ${rows.map(({p,st})=>`<tr style="border-bottom:1px solid var(--border);cursor:pointer;${p.archived?'opacity:.6':''}" onclick="openCard('${p.id}')">
+        <td style="padding:6px"><b>${p.taskId||''}</b> ${p.client||''}${p.archived?' (arkiv)':''}</td>
+        <td>${st.amount?fmtKr(st.amount):'—'}</td>
+        <td>${st.exp?fmtKr(st.exp):'—'}</td>
+        <td>${st.used.toFixed(1)}t${st.x.extHours?` <span style="color:var(--text3)">(${st.logged.toFixed(1)} egne)</span>`:''}</td>
+        <td>${st.agreed?st.agreed.toFixed(1)+'t':'—'}</td>
+        <td style="${st.perHour==null?'':(st.perHour>=rate?good:bad)}">${st.perHour==null?'—':fmtKr(st.perHour)+'/t'}</td>
+        <td style="${st.budgetPct==null?'':(st.budgetPct<=0?good:bad)}">${st.budgetPct==null?'—':(st.budgetPct>0?'+':'')+st.budgetPct.toFixed(0)+'% '+(st.budgetPct>0?'over':'under')}</td></tr>`).join('')||'<tr><td colspan="7" style="padding:10px;color:var(--text3)">Ingen opgaver med beløb eller timer endnu</td></tr>'}
+    </table>
+    <div style="font-size:14px;font-weight:700;margin-bottom:8px">Aktive deadlines</div>
+    ${active.map(p=>`<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer" onclick="openCard('${p.id}')"><span style="font-family:var(--mono);color:var(--text3)">${formatDate(p.deadline)}</span> &nbsp; <b>${p.taskId||''}</b> ${p.client||''} <span style="color:var(--text3)">· ${p.phase}</span></div>`).join('')||'<div style="color:var(--text3);font-size:12px">Ingen aktive deadlines</div>'}`;
+}
+
 function switchView(v){
-  ['board','timeline','archive'].forEach(x=>{
+  const VIEWS=['board','timeline','archive','overblik'];
+  VIEWS.forEach(x=>{
     document.getElementById('view-'+x).classList.toggle('active',x===v);
-    document.querySelectorAll('.tab')[['board','timeline','archive'].indexOf(x)].classList.toggle('active',x===v);
+    document.querySelectorAll('.tab')[VIEWS.indexOf(x)].classList.toggle('active',x===v);
   });
+  if(v==='overblik') renderOverblik();
   if(v==='timeline') renderTimeline();
   if(v==='archive') renderArchive();
 }
